@@ -1,0 +1,9 @@
+{
+    "chunk_size" : 1024,
+    "chunk_overlap" : 100,
+
+
+    "context_template" : "prompt/template/context.txt",
+    "summer_template" : "prompt/template/summarize.txt"
+
+}
