@@ -35,10 +35,10 @@ class CustomeLoader(BaseLoader):
         self.file_path = file_path
 
 
-    def __split_ext(uploaded_file:str):
+    def __split_ext(self,):
         """
         """
-        path = Path(uploaded_file)
+        path = Path(self.file_path)
         name = path.stem
         extension = path.suffix
         return name, extension
@@ -48,7 +48,7 @@ class CustomeLoader(BaseLoader):
         """
         
         """
-        name, extension = self.__split_ext(self.file_path)
+        name, extension = self.__split_ext()
         if not extension in self.accepted_extension:
             raise NameError(f"L'extension {extension} n'est pas prise en charge")
         else:

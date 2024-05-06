@@ -1,4 +1,4 @@
-qa_generate_prompt_tmpl = """\
+"""[INST]
 Context information is below.
 
 ---------------------

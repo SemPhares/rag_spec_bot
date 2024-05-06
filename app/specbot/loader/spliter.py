@@ -1,6 +1,11 @@
-from ..config import Config
+# from app.specbot.config import Config
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size = Config.chunk_size, 
-                                               chunk_overlap = Config.chunk_overlap)
+config = {
+    "chunk_size" : 1024,
+    "chunk_overlap" : 100,
+}
+
+text_splitter = RecursiveCharacterTextSplitter(chunk_size = config["chunk_size"], 
+                                               chunk_overlap = config['chunk_overlap'])
