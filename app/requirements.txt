@@ -13,3 +13,6 @@ pytube
 pypdf
 fastembed
 tokenizers==0.19
+docx2txt
+unstructured
+python-pptx
