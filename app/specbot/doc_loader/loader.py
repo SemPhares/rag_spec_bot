@@ -3,13 +3,15 @@ from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.document_loaders.word_document import Docx2txtLoader
 from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
 from langchain_community.document_loaders.excel import UnstructuredExcelLoader
+from langchain.vectorstores.utils import filter_complex_metadata
 
 # from langchain_community.document_loaders.merge import MergedDataLoader
 # loader_all = MergedDataLoader(loaders=[loader_web, loader_pdf])
 
+from typing import Union
 from pathlib import Path
 from typing import Iterator
-from spliter import text_splitter
+from .spliter import text_splitter
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
 
@@ -26,16 +28,29 @@ class CustomeLoader(BaseLoader):
                           '.xlsx':UnstructuredExcelLoader}
 
 
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, 
+                 file_path: str = None,
+                 file_bytes: Union[bytes,str] = None) -> None:
         """Initialize the loader with a file path.
 
         Args:
             file_path: The path to the file to load.
         """
+        self.file_bytes = file_bytes
         self.file_path = file_path
 
 
-    def __split_ext(self,):
+    def path_or_bytes(self) -> Union[str, bytes]:
+        """
+        
+        """
+        if self.file_path:
+            return self.file_path
+        else:
+            return self.file_bytes
+
+
+    def __split_ext(self,) -> tuple[str,str]:
         """
         """
         path = Path(self.file_path)
@@ -44,12 +59,13 @@ class CustomeLoader(BaseLoader):
         return name, extension
     
 
-    def __return_rigth_loader(self):
+    def __return_rigth_loader(self) -> BaseLoader:
         """
         
         """
         name, extension = self.__split_ext()
         if not extension in self.accepted_extension:
+            return self.accepted_extension['.pdf']
             raise NameError(f"L'extension {extension} n'est pas prise en charge")
         else:
             return self.accepted_extension[extension]
@@ -62,7 +78,9 @@ class CustomeLoader(BaseLoader):
         to yield documents one by one.
         """
         loader = self.__return_rigth_loader()
-        documents = loader(self.file_path).load()
+        documents = loader(self.path_or_bytes()).load()
+        documents = text_splitter.split_documents(documents)
+        documents = filter_complex_metadata(documents)
 
-        return text_splitter.split_documents(documents)
+        return documents
     

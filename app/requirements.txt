@@ -14,3 +14,4 @@ fastembed
 docx2txt
 unstructured
 python-pptx
+llama-cpp-python

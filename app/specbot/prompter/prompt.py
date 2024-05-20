@@ -1,6 +1,6 @@
 from typing import Union
-from template.context import context_template
-from template.summarize import summarize_template
+from .prompt_template.context import context_template
+from .prompt_template.summarize import summarize_template
 from langchain_core.documents import Document
 
 config = {
@@ -25,7 +25,7 @@ def doc_to_str(chunks: Union[Document, str]) -> str:
 
 
 def build_rag_prompt(query : str, 
-                 retrieved_chunks : str) :
+                 retrieved_chunks : Union[Document, str]) :
     # with open(config['context_template'], "r", encoding='utf-8') as f:
     #     content = f.read()
     # retrieved_chunks = doc_to_str(retrieved_chunks)
