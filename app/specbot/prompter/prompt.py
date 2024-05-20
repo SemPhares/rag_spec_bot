@@ -1,5 +1,6 @@
-from langchain.prompts import PromptTemplate
 from typing import Union
+from template.context import context_template
+from template.summarize import summarize_template
 from langchain_core.documents import Document
 
 config = {
@@ -25,19 +26,22 @@ def doc_to_str(chunks: Union[Document, str]) -> str:
 
 def build_rag_prompt(query : str, 
                  retrieved_chunks : str) :
-    with open(config['context_template'], "r", encoding='utf-8') as f:
-        content = f.read()
-    retrieved_chunks = doc_to_str(retrieved_chunks)
-    content = content.replace('{context_str}', doc_to_str(retrieved_chunks))
-    content = content.replace('{query}', query)
-    # context_prompt = PromptTemplate.from_template(content)
-    return content
+    # with open(config['context_template'], "r", encoding='utf-8') as f:
+    #     content = f.read()
+    # retrieved_chunks = doc_to_str(retrieved_chunks)
+    # content = content.replace('{context_str}', doc_to_str(retrieved_chunks))
+    # content = content.replace('{query}', query)
+    context_prompt = context_template.format(context_str=doc_to_str(retrieved_chunks), 
+                                             query=query)
+
+    return context_prompt
 
 
 def build_sum_prompt(texts : str) :
-    with open(config['summer_template'], "r", encoding='utf-8') as f:
-        content = f.read()
-    texts = doc_to_str(texts)
-    content = content.replace('{text_to_summarize}', doc_to_str(texts))
+    # with open(config['summer_template'], "r", encoding='utf-8') as f:
+    #     content = f.read()
+    # texts = doc_to_str(texts)
+    # content = content.replace('{text_to_summarize}', doc_to_str(texts))
     # summarize_prompt = PromptTemplate.from_template(content)
-    return content
+    summarize_prompt = summarize_template.format(text_to_summarize=doc_to_str(texts))
+    return summarize_prompt

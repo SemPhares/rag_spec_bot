@@ -1,8 +1,10 @@
 # Import necessary libraries
 import tempfile
 import streamlit as st
-from chat_pdf import ChatPDF
 from streamlit_chat import message
+from prompter.prompt import build_rag_prompt
+from model_api.llm.llm import llm
+from doc_loader.loader import CustomeLoader
 
 
 # Set the title for the Streamlit app
@@ -17,8 +19,9 @@ if uploaded_file:
         tmp_file.write(uploaded_file.getvalue())
         tmp_file_path = tmp_file.name
 
-    chat_pdf = ChatPDF()
-    chat_pdf.ingest_pdf_file(tmp_file_path)
+    # chat_pdf = ChatPDF()
+    # chat_pdf.ingest_pdf_file(tmp_file_path)
+
 
     # Initialize chat history
     if 'history' not in st.session_state:
