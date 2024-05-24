@@ -7,7 +7,5 @@ class Config(object):
 
         self.chunk_size : str = conf['chunk_size']
         self.chunk_overlap : str = conf['chunk_overlap']
-        self.context_template : str= conf['context_template']
-        self.summer_template : str = conf['summer_template']
 
         

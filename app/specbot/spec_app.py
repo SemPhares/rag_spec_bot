@@ -67,11 +67,7 @@ if uploaded_file:
     # Display chat history
     if st.session_state['generated']:
         with response_container:
+
             for i in range(len(st.session_state['generated'])):
-                st.write(st.session_state["past"][i])
-                st.write(st.session_state["generated"][i])
-
-
-            # for i in range(len(st.session_state['generated'])):
-            #     message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="big-smile")
-            #     message(st.session_state["generated"][i], key=str(i), avatar_style="thumbs")
+                message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="big-smile")
+                message(st.session_state["generated"][i], key=str(i), avatar_style="thumbs")
