@@ -1,8 +1,5 @@
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 
-fast_embeder = FastEmbedEmbeddings()
-
-ollama_embeder = OllamaEmbeddings()
+ollama_embeder = OllamaEmbeddings(model="llama3")
 
 #intfloat/multilingual-e5-large

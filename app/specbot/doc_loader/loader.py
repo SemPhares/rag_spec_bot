@@ -3,84 +3,114 @@ from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.document_loaders.word_document import Docx2txtLoader
 from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
 from langchain_community.document_loaders.excel import UnstructuredExcelLoader
+
 from langchain.vectorstores.utils import filter_complex_metadata
 
 # from langchain_community.document_loaders.merge import MergedDataLoader
 # loader_all = MergedDataLoader(loaders=[loader_web, loader_pdf])
 
-from typing import Union
+from typing import List
+import tempfile
 from pathlib import Path
+from utils import logger, timer
 from typing import Iterator
 from .spliter import text_splitter
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
-
+from .lodaer_utils import extract_everithing_from_doc, caption_single_image
 
 
 class CustomeLoader(BaseLoader):
     """An example document loader that reads a file line by line."""
-    accepted_extension = {'.docx':Docx2txtLoader, 
-                          '.doc':Docx2txtLoader, 
-                          '.pdf':PyPDFLoader, 
-                          '.pptx':UnstructuredPowerPointLoader, 
-                          '.txt':TextLoader,
-                          '.xls':UnstructuredExcelLoader,
-                          '.xlsx':UnstructuredExcelLoader}
+    ACCEPTED_EXTENSION = {'docx':Docx2txtLoader, 
+                          'doc':Docx2txtLoader, 
+                          'pdf':PyPDFLoader, 
+                          'pptx':UnstructuredPowerPointLoader, 
+                          'txt':TextLoader,
+                          'xls':UnstructuredExcelLoader,
+                          'xlsx':UnstructuredExcelLoader}
+    
+    IMAGES_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']  # Define the IMAGES_EXTENSIONS variable
+    
+    # Create a temporary directory
+    TEMP_DIR = tempfile.TemporaryDirectory()
 
 
-    def __init__(self, 
-                 file_path: str = None,
-                 file_bytes: Union[bytes,str] = None) -> None:
+    def __init__(self,
+                 filename_list: List[str],
+                 tempfile_path_list: List[str]) -> None:
         """Initialize the loader with a file path.
 
         Args:
             file_path: The path to the file to load.
         """
-        self.file_bytes = file_bytes
-        self.file_path = file_path
+        self.filename_list = filename_list
+        self.tempfile_path_list = tempfile_path_list
+        self.zip_name_path = zip(self.filename_list, self.tempfile_path_list)
 
 
-    def path_or_bytes(self) -> Union[str, bytes]:
+    def extract_file_extension(self, file_name) -> str:
         """
+        Return the extension of the file
+
+        Args:
+            file_name: The name of the file
         
+        Returns:
+            str: The extension of the file
         """
-        if self.file_path:
-            return self.file_path
-        else:
-            return self.file_bytes
-
-
-    def __split_ext(self,) -> tuple[str,str]:
-        """
-        """
-        path = Path(self.file_path)
-        name = path.stem
-        extension = path.suffix
-        return name, extension
+        return file_name.split('.')[-1]
     
 
-    def __return_rigth_loader(self) -> BaseLoader:
+    def return_rigth_loader(self, 
+                            file_extension:str) -> BaseLoader:
         """
+        Return the right loader for the files
         
+        Args:
+            file_extension: The extension of the file
+
+        Returns:
+            BaseLoader: The right loader for the file        
         """
-        name, extension = self.__split_ext()
-        if not extension in self.accepted_extension:
-            return self.accepted_extension['.pdf']
-            raise NameError(f"L'extension {extension} n'est pas prise en charge")
+        if not file_extension in self.ACCEPTED_EXTENSION:
+            # log warning extension not supported
+            logger.warning(f"Extension {self.extract_file_extension} not supported, using default pdf loader.")
+            return self.ACCEPTED_EXTENSION['pdf']
         else:
-            return self.accepted_extension[extension]
+            return self.ACCEPTED_EXTENSION[file_extension]
+        
 
-
+    @timer
     def lazy_load(self) -> Iterator[Document]:  # <-- Does not take any arguments
-        """A lazy loader that reads a file line by line.
+        """
+        A lazy loader that reads a file line by line.
 
         When you're implementing lazy load methods, you should use a generator
         to yield documents one by one.
         """
-        loader = self.__return_rigth_loader()
-        documents = loader(self.path_or_bytes()).load()
-        documents = text_splitter.split_documents(documents)
-        documents = filter_complex_metadata(documents)
+        # all documents list initialization
+        all_documents = []
 
-        return documents
+        # Load all the documents
+        for filename, path in self.zip_name_path:
+            file_extension = self.extract_file_extension(filename)
+
+            if file_extension in self.IMAGES_EXTENSIONS:
+                logger.info(f"Image file identified: {filename}")
+                document = caption_single_image(path)
+                all_documents.append(document)
+                continue
+
+            loader = self.return_rigth_loader(file_extension)
+            # liste de documents
+            documents:list = loader(path).load()
+            all_documents.extend(documents)
+            other_documents = extract_everithing_from_doc(path, self.TEMP_DIR)
+            all_documents.extend(other_documents)
+
+        all_documents = text_splitter.split_documents(all_documents)
+        # Filter out documents with complex metadata
+        all_documents = filter_complex_metadata(all_documents)
+        return all_documents
     

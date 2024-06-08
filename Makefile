@@ -7,4 +7,4 @@ install:
 	pip install -r requirements.txt
 
 dev:
-	streamlit run app/specbot/spec_app.py
+	streamlit run app/specbot/spec_app.py 
