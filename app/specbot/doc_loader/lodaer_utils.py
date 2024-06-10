@@ -130,6 +130,7 @@ def caption_images(image_bs4) -> str:
     llama_cpp_model = llamacpp.from_pretrained(
         repo_id="mys/ggml_llava-v1.5-7b",
         filename="ggml-model-q4_k.gguf",
+        n_gpu_layers=-1,
         verbose=False)
     
     response = llama_cpp_model.create_chat_completion(
@@ -142,7 +143,7 @@ def caption_images(image_bs4) -> str:
                 ]
             }
         ],
-        temperature=0.3,
+        temperature=0.2,
     )
     caption:str = response["choices"][0]["message"]['content']
     return caption

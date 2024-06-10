@@ -9,11 +9,10 @@ from langchain.vectorstores.utils import filter_complex_metadata
 # from langchain_community.document_loaders.merge import MergedDataLoader
 # loader_all = MergedDataLoader(loaders=[loader_web, loader_pdf])
 
-from typing import List
 import tempfile
 from pathlib import Path
-from utils import logger, timer
-from typing import Iterator
+from .lodaer_utils import logger, timer
+from typing import Iterator, List
 from .spliter import text_splitter
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
