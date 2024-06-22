@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from typing import List
+from utils.usefull import List
 from sentence_transformers import SentenceTransformer
 
 
@@ -17,8 +17,8 @@ class sentence_embeder():
         """
         
         """
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.embeder = SentenceTransformer(model_name_or_path= self.model_name, device='cpu')
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.embeder = SentenceTransformer(model_name_or_path= self.model_name, device= self.device)
 
 
     def embed(self, input_query:str):
@@ -57,5 +57,5 @@ class sentence_embeder():
         Returns:
             Embeddings for the text.
         """
-        query_embeddings: np.ndarray = next(self.embed(text))
+        query_embeddings: np.ndarray = self.embed(text)
         return query_embeddings.tolist()

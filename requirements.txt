@@ -18,3 +18,4 @@ fastembed
 docx2txt
 unstructured
 python-pptx
+"unstructured[pdf]"

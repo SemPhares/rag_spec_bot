@@ -1,4 +1,5 @@
-# from app.specbot.config import Config
+from config import Config
+from utils.log import logger
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
@@ -7,5 +8,5 @@ config = {
     "chunk_overlap" : 100,
 }
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size = config["chunk_size"], 
-                                               chunk_overlap = config['chunk_overlap'])
+text_splitter = RecursiveCharacterTextSplitter(chunk_size = int(Config.CHUNCK_SIZE), 
+                                               chunk_overlap = int(Config.CHUNK_OVERLAP))

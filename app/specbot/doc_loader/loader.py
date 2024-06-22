@@ -12,7 +12,7 @@ from langchain.vectorstores.utils import filter_complex_metadata
 import tempfile
 from pathlib import Path
 from .lodaer_utils import logger, timer
-from typing import Iterator, List
+from utils.usefull import List
 from .spliter import text_splitter
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
@@ -81,7 +81,7 @@ class CustomeLoader(BaseLoader):
         
 
     @timer
-    def lazy_load(self) -> Iterator[Document]:  # <-- Does not take any arguments
+    def lazy_load(self) -> List[Document]:  # <-- Does not take any arguments
         """
         A lazy loader that reads a file line by line.
 
@@ -103,9 +103,9 @@ class CustomeLoader(BaseLoader):
 
             loader = self.return_rigth_loader(file_extension)
             # liste de documents
-            documents:list = loader(path).load()
+            documents:list = loader(file_path = path).load() # type: ignore
             all_documents.extend(documents)
-            other_documents = extract_everithing_from_doc(path, self.TEMP_DIR)
+            other_documents = extract_everithing_from_doc(path, self.TEMP_DIR) # type: ignore
             all_documents.extend(other_documents)
 
         all_documents = text_splitter.split_documents(all_documents)

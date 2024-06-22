@@ -3,12 +3,15 @@ from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 
-from langchain.chains import RetrievalQA
+# from langchain.chains import RetrievalQA
 from langchain.retrievers.document_compressors import FlashrankRerank
 
 
 from typing import List
 
+# TODO: Implement a custom retriever that retrieves the top k documents that contain the user query.
+# The custom retriever should be a subclass of BaseRetriever.
+# The custom retriever should use reranker and retriever chains to retrieve the top k documents.
 
 class CustomRetriever(BaseRetriever):
     """A toy retriever that contains the top k documents that contain the user query.

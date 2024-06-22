@@ -9,3 +9,5 @@ app/specbot/model_api/models_w
 logfile.log
 test_notebook/
 .DS_Store
+log/
+app/specbot/secret.py

@@ -1,11 +1,43 @@
-import json
+from utils.log import logger
 
-class Config(object):
-    def __init__(self, conf_file="config.json"):
-        with open(conf_file, "rt", encoding="utf8") as f :
-            conf = json.load(f)
+try:
+    from secret import GEMINI_API_KEY
+except ImportError:
+    GEMINI_API_KEY = ""
 
-        self.chunk_size : str = conf['chunk_size']
-        self.chunk_overlap : str = conf['chunk_overlap']
 
-        
+from dotenv import load_dotenv
+import os
+load_dotenv(dotenv_path = "app/specbot/.env", verbose=True, override=True)
+
+
+class Config():
+
+    CHUNCK_SIZE :int = int(os.getenv("CHUNCK_SIZE")) # type: ignore
+    CHUNK_OVERLAP :int = int(os.getenv("CHUNK_OVERLAP")) # type: ignore
+
+    PHI3_MODEL_NAME :str = os.getenv("SUMMARIZE_MODEL") or ""
+    PHI3_INSTRUCT_REPO_ID :str = os.getenv("PHI3_INSTRUCT_REPO_ID") or ""
+    PHI3_INSTRUCT_FILENAME :str = os.getenv("PHI3_INSTRUCT_FILENAME") or ""
+
+    MISTRAL_7B_MODEL_NAME :str = os.getenv("MISTRAL_7B_MODEL_NAME") or ""
+    MISTRAL_7B_PATH :str = os.getenv("MISTRAL_7B_PATH") or ""
+
+    IMAGE_MODEL_NAME :str = os.getenv("IMAGE_MODEL_NAME") or ""
+    IMAGE_MODEL_REPO_ID :str = os.getenv("IMAGE_MODEL_REPO_ID") or ""
+    IMAGE_MODEL_FILENAME :str = os.getenv("IMAGE_MODEL_FILENAME") or ""
+
+    GEMINI_API_KEY :str = GEMINI_API_KEY
+    GEMINI_API_ENDPOINT :str = os.getenv("GEMINI_API_ENDPOINT") or ""
+
+    OLLAMA_BASE_MODEL_NAME :str = os.getenv("OLLAMA_BASE_MODEL_NAME") or ""
+    LLAMA_CPP_BASE_MODEL_NAME :str = os.getenv("LLAMA_CPP_BASE_MODEL_NAME") or ""
+    LLAMA_CPP_BASE_MODEL_REPO_ID :str = os.getenv("LLAMA_CPP_BASE_MODEL_REPO_ID") or ""
+    LLAMA_CPP_BASE_MODEL_FILENAME :str = os.getenv("LLAMA_CPP_BASE_MODEL_FILENAME") or ""
+    LLAMA_CPP_BASE_MODEL_PATH :str = os.getenv("LLAMA_CPP_BASE_MODEL_PATH") or ""
+    
+    logger.info(f"""BASE MODELS: {OLLAMA_BASE_MODEL_NAME}, {LLAMA_CPP_BASE_MODEL_REPO_ID}""")
+
+    EMBEDDING_MODEL_NAME :str = os.getenv("EMBEDDING_MODEL_NAME") or ""
+    EMBEDDING_MODEL_REPO_ID :str = os.getenv("EMBEDDING_MODEL_REPO_ID") or ""
+    EMBEDDING_MODEL_FILENAME :str = os.getenv("EMBEDDING_MODEL_FILENAME") or ""

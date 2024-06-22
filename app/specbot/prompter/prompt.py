@@ -1,10 +1,10 @@
-from typing import Union
+from utils.usefull import Union, List
 from .prompt_template.context import context_template
 from .prompt_template.summarize import summarize_template
 from langchain_core.documents import Document
 
 
-def doc_to_str(chunks: Union[Document, str]) -> str:
+def doc_to_str(chunks: Union[List[Document], str]) -> str:
     """
     """
     if isinstance(chunks, list) :
@@ -19,8 +19,9 @@ def doc_to_str(chunks: Union[Document, str]) -> str:
         return chunks
 
 
-def build_rag_prompt(query : str, 
-                 retrieved_chunks : Union[Document, str]) :
+def build_rag_prompt(query : str,
+                     retrieved_chunks : Union[List[Document], str]) :
+    
     context_prompt = context_template.format(context_str=doc_to_str(retrieved_chunks), 
                                              query=query)
     return context_prompt

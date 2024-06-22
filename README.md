@@ -2,5 +2,5 @@
 
 for first use run :
   - make install
-  - make dev
+  - make run
 

@@ -1,28 +1,14 @@
-# import io
-# import fitz
-# import tabula
-# from PIL import Image
-import time
-# impor the logger for utils
-from utils import logger, timer
-from langchain_community.chat_models.ollama import ChatOllama
-# import StrOutputParser
+from utils.log import logger
+from utils.usefull import timer
+from utils.usefull import spinner
 from langchain_core.output_parsers import StrOutputParser
-# import Document
 from langchain_core.documents import Document
-# import llamacpp
+from config import Config
 from llama_cpp import Llama as llamacpp
-# import base64
+from model_api.llamacpp_model import llamacpp_from_pretrained
 import base64
 from glob import glob
 from unstructured.partition.auto import partition
-
-SUMMARIZE_MODEL:str = "phi3"
-LLAVA_MODEL_NAME:str = "LLaVAv1.5-7b"
-LLAVA_MODEL_PATH:str = "app/specbot/model_api/models_w/mmproj-model-f16.gguf"
-LLAMA_3_MODEL:str = "llama3"
-PHI3_INSTRUCT_MODEL:str = "bartowski/Phi-3-mini-4k-instruct-v0.3-GGUF"
-
 
 
 @timer
@@ -57,7 +43,6 @@ def elements_text_and_tables(elements):
            texts.append(str(element))
         else:
             others.append(str(element))
-            # logger.info(f"Element non pris en compte: {element_type}")
                 
         if element_type in element_count:
             element_count[element_type] += 1
@@ -75,42 +60,40 @@ def convert_to_str(elements):
     for i in elements:
         if isinstance(i, str) and i != "":
             str_list.append(i)
-        elif hasattr(i, "text") and i.text != "":
-            str_list.append(i.text)
+        elif hasattr(i, "text") and i.text != "": # type: ignore
+            str_list.append(i.text) # type: ignore
     return str_list
 
 
 def summarize_tables(tables, 
-                     file_path:str = None) -> list[Document]:
+                     file_path:str = "") -> list[Document]:
     """
     """
     summarize_tables = []
     tables = convert_to_str(tables)
-    # model = ChatOllama(model=SUMMARIZE_MODEL,
-    #                 temperature=0.5,
-    #                 top_k=0.3,)
-    
-    model = llamacpp.from_pretrained(
-        repo_id=PHI3_INSTRUCT_MODEL,
-        filename="*v0.3-Q3_K_L.gguf",
-        verbose=False)
-    
-    for table in tables:
-        # Prompt
-        prompt_text = f"""You are an assistant tasked with summarizing tables and text. \
-                        Give a concise summary of the table or text. Table or text chunk: {table} """
-        output = model.create_completion(prompt_text)
-        output = output["choices"][0]["text"]
-        table_doc = Document(page_content=StrOutputParser().parse(output),
-                     metadata = {"type": "table", "source": SUMMARIZE_MODEL, "file_path": file_path})
-        summarize_tables.append(table_doc)
 
-    logger.info(f"Tables summarized: {len(summarize_tables)}")
-    logger.info(f"Tables summarized first: {summarize_tables[0].page_content}")
+    logger.info(f"Tables to summarize: {len(tables)}")
+
+    model = llamacpp_from_pretrained(Config.PHI3_INSTRUCT_REPO_ID,
+                                     Config.PHI3_INSTRUCT_FILENAME)
+    
+    if tables:
+        for table in tables:
+            # Prompt
+            prompt_text = f"""You are an assistant tasked with summarizing tables and text. \
+                            Give a concise summary of the table or text. Table or text chunk: {table} """
+            output = model.create_completion(prompt_text)
+            output = output["choices"][0]["text"] # type: ignore
+            table_doc = Document(page_content=StrOutputParser().parse(output),
+                        metadata = {"type": "table", "source": Config.PHI3_MODEL_NAME, "file_path": file_path})
+            summarize_tables.append(table_doc)
+
+        logger.info(f"Tables summarized: {len(summarize_tables)}")
+        logger.info(f"Tables summarized first: {summarize_tables[0].page_content}")
     return summarize_tables
 
 
-def texts_to_documents(texts, file_path:str = None) -> list[Document]:
+def texts_to_documents(texts, file_path:str = "") -> list[Document]:
     """
     """
     texts = convert_to_str(texts)
@@ -127,13 +110,11 @@ def encode_image(image_path):
 def caption_images(image_bs4) -> str:
     """
     """
-    llama_cpp_model = llamacpp.from_pretrained(
-        repo_id="mys/ggml_llava-v1.5-7b",
-        filename="ggml-model-q4_k.gguf",
-        n_gpu_layers=-1,
-        verbose=False)
+
+    model = llamacpp_from_pretrained(Config.IMAGE_MODEL_REPO_ID,
+                                     Config.IMAGE_MODEL_FILENAME)
     
-    response = llama_cpp_model.create_chat_completion(
+    response = model.create_chat_completion(
         messages = [
             {
                 "role": "user",
@@ -145,7 +126,7 @@ def caption_images(image_bs4) -> str:
         ],
         temperature=0.2,
     )
-    caption:str = response["choices"][0]["message"]['content']
+    caption:str = response["choices"][0]["message"]['content'] # type: ignore
     return caption
 
 
@@ -156,7 +137,7 @@ def caption_single_image(image_path:str) -> Document:
     image_bs4 = encode_image(image_path)
     img_cpation = caption_images(image_bs4)
     image_doc = Document(page_content=img_cpation,
-                         metadata = {"type": "image", "source": LLAVA_MODEL_NAME, "file_path": image_path})
+                         metadata = {"type": "image", "source": Config.IMAGE_MODEL_NAME, "file_path": image_path})
     return image_doc
 
 
@@ -171,7 +152,6 @@ def summarize_iamges(images_dir:str) -> list[Document]:
     logger.info(f"Images list: {images_list}")
     for image_path in images_list:
         image_doc = caption_single_image(image_path)
-        time.sleep(2)
         images_caption.append(image_doc)
     return images_caption
 

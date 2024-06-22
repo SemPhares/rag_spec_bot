@@ -1,10 +1,8 @@
-# download_model:
-#     curl -o llama3_model.tar.gz https://example.com/path/to/llama3/model
-#     tar -xzf llama3_model.tar.gz
-#     rm llama3_model.tar.gz
-
-install:
+first_install:
 	pip install -r requirements.txt
 
-dev:
+# download_models_gguf:
+# 	python app/specbot/model_api/models_w/download-models.py
+
+run:
 	streamlit run app/specbot/spec_app.py 
