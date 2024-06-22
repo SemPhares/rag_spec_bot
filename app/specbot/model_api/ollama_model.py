@@ -1,5 +1,5 @@
 from langchain_community.chat_models.ollama import ChatOllama
-from llm_typing import llm_input, llm_output
+from .llm_typing import llm_input, llm_output
 
 
 def ask_ollama(query:llm_input) -> llm_output:
