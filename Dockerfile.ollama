@@ -4,7 +4,8 @@ COPY . .
 
 EXPOSE 11434
 
-RUN make install_ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+RUN ollama serve
 RUN ollama pull llama3
 RUN ollama pull phi3
 RUN ollama pull llava:7b

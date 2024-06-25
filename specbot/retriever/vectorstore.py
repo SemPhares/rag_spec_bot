@@ -14,7 +14,7 @@ def retrieve_docs(query:str,
     """
 
     # Create a FAISS vector store and save embeddings
-    vector_store = FAISS.from_documents(documents, embedder) 
+    vector_store = FAISS.from_documents(documents, embedder) # type: ignore
     # Create a retriever
     retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",

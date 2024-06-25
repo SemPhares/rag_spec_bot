@@ -1,6 +1,6 @@
 import time
-from .log import logger
 import streamlit as st
+from .log import logger
 from typing import Union, List
 
 

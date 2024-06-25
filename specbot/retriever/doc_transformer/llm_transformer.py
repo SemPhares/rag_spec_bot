@@ -1,7 +1,5 @@
-from model_api.llamacpp_model import llamacpp_for_embedding
 from utils.usefull import List
-import numpy as np
-
+from model_api.llamacpp_model import llamacpp_for_embedding
 
 class llama_embeder():
     

@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 # Créer un logger
 logger = logging.getLogger("RAG")
@@ -7,6 +8,11 @@ logger.setLevel(logging.INFO)
 # Créer un gestionnaire de log pour la console
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
+
+logfile = Path('log/logfile.log')
+if not logfile.exists():
+    logfile.parent.mkdir(parents=True, exist_ok=True)
+    logfile.touch()
 
 # Créer un gestionnaire de log pour un fichier
 file_handler = logging.FileHandler('log/logfile.log')
