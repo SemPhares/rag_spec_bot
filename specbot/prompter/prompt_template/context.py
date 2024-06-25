@@ -1,4 +1,3 @@
-
 from langchain.prompts import PromptTemplate
 
 context_template = PromptTemplate.from_template(

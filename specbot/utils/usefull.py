@@ -1,7 +1,7 @@
 import time
-from .log import logger
 import streamlit as st
 from typing import Union, List
+from specbot.utils.log import logger
 
 
 # Créer un décorateur pour mesurer le temps d'exécution d'une fonction

@@ -1,6 +1,5 @@
-from model_api.llamacpp_model import llamacpp_for_embedding
-from utils.usefull import List
-import numpy as np
+from specbot.model_api.llamacpp_model import llamacpp_for_embedding
+from specbot.utils.usefull import List
 
 
 class llama_embeder():

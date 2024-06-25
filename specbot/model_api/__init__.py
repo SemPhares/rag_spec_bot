@@ -1,6 +1,6 @@
-from .llm_typing import llm_input, llm_output, llam_cpp_local_input
-from config import Config
-from utils.usefull import spinner
+from specbot.model_api.llm_typing import llm_input, llm_output, llam_cpp_local_input
+from specbot.config import ModelConfig
+from specbot.utils.usefull import spinner
 
 @spinner
 def ask_llm(ccp_or_ollama:str, 
@@ -13,8 +13,8 @@ def ask_llm(ccp_or_ollama:str,
     elif ccp_or_ollama == "llamacpp":
         from .llamacpp_model import ask_llmcpp
         return ask_llmcpp(llam_cpp_local_input(
-            model_path=Config.LLAMA_CPP_BASE_MODEL_PATH,
-            model_name=Config.LLAMA_CPP_BASE_MODEL_NAME,
+            model_path=ModelConfig.LLAMA_CPP_BASE_MODEL_PATH,
+            model_name=ModelConfig.LLAMA_CPP_BASE_MODEL_NAME,
             input=request))
     else:
         from .ollama_model import ask_ollama

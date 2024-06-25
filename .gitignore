@@ -5,7 +5,6 @@ __pycache__/
 .vscode/
 __pycache__/**/*.pyc
 specbot/model_api/models_w
-test_notebook/
 .DS_Store
 log/*
 specbot/secret.py

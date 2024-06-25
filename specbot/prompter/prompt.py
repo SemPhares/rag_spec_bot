@@ -1,7 +1,7 @@
-from utils.usefull import Union, List
-from .prompt_template.context import context_template
-from .prompt_template.summarize import summarize_template
+from specbot.utils.usefull import Union, List
 from langchain_core.documents import Document
+from specbot.prompter.prompt_template.context import context_template
+from specbot.prompter.prompt_template.summarize import summarize_template
 
 
 def doc_to_str(chunks: Union[List[Document], str]) -> str:

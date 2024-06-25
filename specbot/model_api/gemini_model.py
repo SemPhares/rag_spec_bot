@@ -1,18 +1,18 @@
 import requests
-from config import Config
+from specbot.config import ModelConfig
 
 
 def generate_text(prompt, 
                   max_tokens=100):
     headers = {
-        'Authorization': f'Bearer {Config.GEMINI_API_KEY}',
+        'Authorization': f'Bearer {ModelConfig.GEMINI_API_KEY}',
         'Content-Type': 'application/json'}
     
     data = {
         'prompt': prompt,
         'max_tokens': max_tokens }
     
-    response = requests.post(Config.GEMINI_API_ENDPOINT, 
+    response = requests.post(ModelConfig.GEMINI_API_ENDPOINT, 
                              headers=headers, json=data)
     
     if response.status_code == 200:
