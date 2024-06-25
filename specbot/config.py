@@ -5,16 +5,20 @@ try:
 except ImportError:
     GEMINI_API_KEY = ""
 
+from prompter.prompt_template import simple_prompt
 
-from dotenv import load_dotenv
 import os
-load_dotenv(dotenv_path = "app/specbot/.env", verbose=True, override=True)
+from dotenv import load_dotenv
+load_dotenv(dotenv_path = "specbot/.env", verbose=True, override=True)
 
 
-class Config():
+class GlobalConfig():
 
     CHUNCK_SIZE :int = int(os.getenv("CHUNCK_SIZE")) # type: ignore
     CHUNK_OVERLAP :int = int(os.getenv("CHUNK_OVERLAP")) # type: ignore
+    NUM_GPU :int = int(os.getenv("NUM_GPU")) # type: ignore
+
+class ModelConfig():
 
     PHI3_MODEL_NAME :str = os.getenv("SUMMARIZE_MODEL") or ""
     PHI3_INSTRUCT_REPO_ID :str = os.getenv("PHI3_INSTRUCT_REPO_ID") or ""
@@ -41,3 +45,5 @@ class Config():
     EMBEDDING_MODEL_NAME :str = os.getenv("EMBEDDING_MODEL_NAME") or ""
     EMBEDDING_MODEL_REPO_ID :str = os.getenv("EMBEDDING_MODEL_REPO_ID") or ""
     EMBEDDING_MODEL_FILENAME :str = os.getenv("EMBEDDING_MODEL_FILENAME") or ""
+
+    EXTRACTED_IMAGE_PROMPT :str = simple_prompt.EXTRACTED_IMAGE_PROMPT

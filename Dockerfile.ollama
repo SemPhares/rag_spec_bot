@@ -1,0 +1,12 @@
+FROM alpine:3.16
+
+COPY . .
+
+EXPOSE 11434
+
+RUN make install_ollama
+RUN ollama pull llama3
+RUN ollama pull phi3
+RUN ollama pull llava:7b
+
+CMD  ["make","serve_ollama"]

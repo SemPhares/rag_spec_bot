@@ -1,8 +1,9 @@
 from langchain_community.document_loaders.text import TextLoader
 from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.document_loaders.word_document import Docx2txtLoader
-from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
 from langchain_community.document_loaders.excel import UnstructuredExcelLoader
+from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
+
 
 from langchain.vectorstores.utils import filter_complex_metadata
 
@@ -10,12 +11,11 @@ from langchain.vectorstores.utils import filter_complex_metadata
 # loader_all = MergedDataLoader(loaders=[loader_web, loader_pdf])
 
 import tempfile
-from pathlib import Path
-from .lodaer_utils import logger, timer
 from utils.usefull import List
 from .spliter import text_splitter
-from langchain_core.document_loaders import BaseLoader
+from .lodaer_utils import logger, timer
 from langchain_core.documents import Document
+from langchain_core.document_loaders import BaseLoader
 from .lodaer_utils import extract_everithing_from_doc, caption_single_image
 
 

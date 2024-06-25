@@ -1,14 +1,12 @@
-from utils.log import logger
-from utils.usefull import timer
-from utils.usefull import spinner
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.documents import Document
-from config import Config
-from llama_cpp import Llama as llamacpp
-from model_api.llamacpp_model import llamacpp_from_pretrained
 import base64
 from glob import glob
+from config import ModelConfig
+from utils.log import logger
+from utils.usefull import timer
+from langchain_core.documents import Document
 from unstructured.partition.auto import partition
+from langchain_core.output_parsers import StrOutputParser
+from model_api.llamacpp_model import llamacpp_from_pretrained, llama_cpp_image_input, llamacpp_for_caption
 
 
 @timer
@@ -74,8 +72,8 @@ def summarize_tables(tables,
 
     logger.info(f"Tables to summarize: {len(tables)}")
 
-    model = llamacpp_from_pretrained(Config.PHI3_INSTRUCT_REPO_ID,
-                                     Config.PHI3_INSTRUCT_FILENAME)
+    model = llamacpp_from_pretrained(ModelConfig.PHI3_INSTRUCT_REPO_ID,
+                                     ModelConfig.PHI3_INSTRUCT_FILENAME)
     
     if tables:
         for table in tables:
@@ -85,7 +83,7 @@ def summarize_tables(tables,
             output = model.create_completion(prompt_text)
             output = output["choices"][0]["text"] # type: ignore
             table_doc = Document(page_content=StrOutputParser().parse(output),
-                        metadata = {"type": "table", "source": Config.PHI3_MODEL_NAME, "file_path": file_path})
+                        metadata = {"type": "table", "source": ModelConfig.PHI3_MODEL_NAME, "file_path": file_path})
             summarize_tables.append(table_doc)
 
         logger.info(f"Tables summarized: {len(summarize_tables)}")
@@ -110,9 +108,8 @@ def encode_image(image_path):
 def caption_images(image_bs4) -> str:
     """
     """
-
-    model = llamacpp_from_pretrained(Config.IMAGE_MODEL_REPO_ID,
-                                     Config.IMAGE_MODEL_FILENAME)
+    model = llamacpp_from_pretrained(ModelConfig.IMAGE_MODEL_REPO_ID,
+                                     ModelConfig.IMAGE_MODEL_FILENAME)
     
     response = model.create_chat_completion(
         messages = [
@@ -135,9 +132,15 @@ def caption_single_image(image_path:str) -> Document:
     """
     logger.info(f"Processing image: {image_path}")
     image_bs4 = encode_image(image_path)
-    img_cpation = caption_images(image_bs4)
-    image_doc = Document(page_content=img_cpation,
-                         metadata = {"type": "image", "source": Config.IMAGE_MODEL_NAME, "file_path": image_path})
+    caption_input = llama_cpp_image_input(input=ModelConfig.EXTRACTED_IMAGE_PROMPT,
+                                          repo_id=ModelConfig.IMAGE_MODEL_REPO_ID,
+                                          filename=ModelConfig.IMAGE_MODEL_FILENAME,
+                                          model_name=ModelConfig.IMAGE_MODEL_NAME,
+                                          image_bs4=image_bs4)
+    
+    img_cpation = llamacpp_for_caption(caption_input)
+    image_doc = Document(page_content=img_cpation.response,
+                         metadata = {"type": "image", "source": ModelConfig.IMAGE_MODEL_NAME, "file_path": image_path})
     return image_doc
 
 
