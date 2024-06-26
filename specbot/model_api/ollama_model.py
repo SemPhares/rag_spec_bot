@@ -10,7 +10,7 @@ def ollama_caption_image(query:llm_image_input) -> llm_output:
                        temperature=0.3,
                        top_k=30,
                        num_ctx = 512,
-                       num_gpu = 1,
+                       num_gpu = -1,
                        repeat_penalty = 1.2,
                        top_p = 0.7)
     
@@ -48,7 +48,7 @@ def ask_ollama(query:llm_input) -> llm_output:
                        num_ctx = 512,
                        # The number of GPUs to use. 
                        # On macOS it defaults to 1 to enable metal support, 0 to disable.
-                       num_gpu = 1,
+                       num_gpu = -1,
                        repeat_penalty = 1.2,
                        top_p = 0.7)
     

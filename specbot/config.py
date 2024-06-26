@@ -1,11 +1,11 @@
-from utils.log import logger
+from specbot.utils.log import logger
 
 try:
-    from secret import GEMINI_API_KEY
+    from specbot.secret import GEMINI_API_KEY
 except ImportError:
     GEMINI_API_KEY = ""
 
-from prompter.prompt_template import simple_prompt
+from specbot.prompter.prompt_template import simple_prompt
 
 import os
 from dotenv import load_dotenv

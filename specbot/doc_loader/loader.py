@@ -11,12 +11,12 @@ from langchain.vectorstores.utils import filter_complex_metadata
 # loader_all = MergedDataLoader(loaders=[loader_web, loader_pdf])
 
 import tempfile
-from utils.usefull import List
-from .spliter import text_splitter
-from .lodaer_utils import logger, timer
+from specbot.utils.usefull import List
+from specbot.doc_loader.spliter import text_splitter
+from specbot.doc_loader.lodaer_utils import logger, timer
 from langchain_core.documents import Document
 from langchain_core.document_loaders import BaseLoader
-from .lodaer_utils import extract_everithing_from_doc, caption_single_image
+from specbot.doc_loader.lodaer_utils import extract_everithing_from_doc, caption_single_image
 
 
 class CustomeLoader(BaseLoader):
