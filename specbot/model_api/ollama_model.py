@@ -31,15 +31,15 @@ def ollama_caption_image(query:llm_image_input) -> llm_output:
                        repeat_penalty = 1.2,
                        top_p = 0.7)
     
-    # message = [
-    #         {
-    #             'role': 'user',
-    #             'content': query.input,
-    #             'images': [query.image_bs4]
-    #         }
-    #     ]
+    message = [
+            {
+                'role': 'user',
+                'content': query.input,
+                'images': [query.image_bs4]
+            }
+        ]
     
-    message = prompt_func(query.input, query.image_bs4)
+    # message = prompt_func(query.input, query.image_bs4)
 
     output = model.invoke(message)
     output = llm_output(response = str(output.content), 
