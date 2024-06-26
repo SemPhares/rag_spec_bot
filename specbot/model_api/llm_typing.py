@@ -17,7 +17,7 @@ class llama_cpp_petrained_input(llm_input):
    filename : str = Field(title="filename", description="The filename of the model to use for the response")
 
 class llm_image_input(llm_input):
-   image_bs4 : str = Field(title="image_path", description="The image to use for the response")
+   image_path : str = Field(title="image_path", description="The image to use for the response")
 
 
 class llama_cpp_image_input(llm_input):
