@@ -1,5 +1,4 @@
 from specbot.config import GlobalConfig
-from specbot.utils.log import logger
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 

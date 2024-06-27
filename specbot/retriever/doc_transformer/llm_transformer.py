@@ -1,6 +1,6 @@
-from specbot.model_api.llamacpp_model import llamacpp_for_embedding
-from specbot.utils.usefull import List
-
+from typing import List
+from specbot.config import ModelConfig
+from specbot.model_api.llamacpp_model import llamacpp_from_pretrained
 
 class llama_embeder():
     
@@ -9,7 +9,8 @@ class llama_embeder():
         """
         
         """
-        self.embeder = llamacpp_for_embedding()
+        self.embeder = llamacpp_from_pretrained(ModelConfig.EMBEDDING_MODEL_REPO_ID,
+                                                        ModelConfig.EMBEDDING_MODEL_FILENAME)
 
     
     def create_embedding(self, text:str) -> List[float]:

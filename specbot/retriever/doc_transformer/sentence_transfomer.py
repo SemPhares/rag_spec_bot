@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from specbot.utils.usefull import List
+from typing import List
 from sentence_transformers import SentenceTransformer
 
 

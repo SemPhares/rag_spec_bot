@@ -4,12 +4,11 @@ import streamlit as st
 import streamlit_chat as sc
 
 from utils.log import logger
-from utils.usefull import spinner
 
-from model_api import ask_llm
-from doc_loader.loader import CustomeLoader
-from prompter.prompt import build_rag_prompt
-from retriever.vectorstore import retrieve_docs
+from specbot.model_api import ask_llm
+from specbot.doc_loader.loader import CustomeLoader
+from specbot.prompter.prompt import build_rag_prompt
+from specbot.retriever.vectorstore import retrieve_docs
 
 
 # Set the title for the Streamlit app

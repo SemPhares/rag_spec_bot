@@ -1,6 +1,5 @@
 import time
 import streamlit as st
-from typing import Union, List
 from specbot.utils.log import logger
 
 

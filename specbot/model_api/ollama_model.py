@@ -1,8 +1,7 @@
-from langchain_community.chat_models.ollama import ChatOllama
-from langchain_core.output_parsers import StrOutputParser
 from specbot.model_api.model_utils import prompt_func
+from langchain_core.output_parsers import StrOutputParser
+from langchain_community.chat_models.ollama import ChatOllama
 from specbot.model_api.llm_typing import llm_input, llm_output, llm_image_input
-
 
 
 def ollama_caption_image(query:llm_image_input) -> llm_output:
@@ -44,3 +43,4 @@ def ask_ollama(query:llm_input) -> llm_output:
     output = llm_output(response = str(response), 
                         model_name = query.model_name)
     return output
+

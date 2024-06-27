@@ -2,18 +2,12 @@ from langchain_community.document_loaders.text import TextLoader
 from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.document_loaders.word_document import Docx2txtLoader
 from langchain_community.document_loaders.excel import UnstructuredExcelLoader
-from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
-
-
-from langchain.vectorstores.utils import filter_complex_metadata
-
-# from langchain_community.document_loaders.merge import MergedDataLoader
-# loader_all = MergedDataLoader(loaders=[loader_web, loader_pdf])
 
 import tempfile
-from specbot.utils.usefull import List
-from specbot.doc_loader.spliter import text_splitter
-from specbot.doc_loader.lodaer_utils import logger, timer
+from typing import List
+from specbot.utils.log import logger
+from specbot.utils.usefull import timer
+from specbot.config import GlobalConfig
 from langchain_core.documents import Document
 from langchain_core.document_loaders import BaseLoader
 from specbot.doc_loader.lodaer_utils import extract_everithing_from_doc, caption_single_image
@@ -23,13 +17,10 @@ class CustomeLoader(BaseLoader):
     """An example document loader that reads a file line by line."""
     ACCEPTED_EXTENSION = {'docx':Docx2txtLoader, 
                           'doc':Docx2txtLoader, 
-                          'pdf':PyPDFLoader, 
-                          'pptx':UnstructuredPowerPointLoader, 
+                          'pdf':PyPDFLoader,
                           'txt':TextLoader,
                           'xls':UnstructuredExcelLoader,
                           'xlsx':UnstructuredExcelLoader}
-    
-    IMAGES_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']  # Define the IMAGES_EXTENSIONS variable
     
     # Create a temporary directory
     TEMP_DIR = tempfile.TemporaryDirectory()
@@ -72,7 +63,7 @@ class CustomeLoader(BaseLoader):
         Returns:
             BaseLoader: The right loader for the file        
         """
-        if not file_extension in self.ACCEPTED_EXTENSION:
+        if not file_extension in GlobalConfig.ACCEPTED_EXTENSION:
             # log warning extension not supported
             logger.warning(f"Extension {self.extract_file_extension} not supported, using default pdf loader.")
             return self.ACCEPTED_EXTENSION['pdf']
@@ -95,21 +86,17 @@ class CustomeLoader(BaseLoader):
         for filename, path in self.zip_name_path:
             file_extension = self.extract_file_extension(filename)
 
-            if file_extension in self.IMAGES_EXTENSIONS:
+            if file_extension in GlobalConfig.IMAGES_EXTENSIONS:
                 logger.info(f"Image file identified: {filename}")
                 document = caption_single_image(path)
                 all_documents.append(document)
                 continue
 
-            loader = self.return_rigth_loader(file_extension)
+            # loader = self.return_rigth_loader(file_extension)
             # liste de documents
-            documents:list = loader(file_path = path).load() # type: ignore
-            all_documents.extend(documents)
+            # documents:list = loader(file_path = path).load() # type: ignore
+            # all_documents.extend(documents)
             other_documents = extract_everithing_from_doc(path, self.TEMP_DIR) # type: ignore
             all_documents.extend(other_documents)
-
-        all_documents = text_splitter.split_documents(all_documents)
-        # Filter out documents with complex metadata
-        all_documents = filter_complex_metadata(all_documents)
         return all_documents
     

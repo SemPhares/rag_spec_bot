@@ -1,13 +1,15 @@
-import base64
-from glob import glob
-from specbot.config import ModelConfig
+import os
 from specbot.utils.log import logger
 from specbot.utils.usefull import timer
+from specbot.config import ModelConfig, GlobalConfig
 from langchain_core.documents import Document
 from unstructured.partition.auto import partition
-from langchain_core.output_parsers import StrOutputParser
-from specbot.model_api.llamacpp_model import llamacpp_from_pretrained, llama_cpp_image_input, llamacpp_for_caption
-
+from specbot.model_api.llm_typing import llm_image_input, llm_input
+from specbot.model_api.ollama_model import ollama_caption_image, ask_ollama
+from specbot.prompter.prompt_template import EXTRACT_IMAGE_PROMPT, summarize_table
+# from model_api.llamacpp_model import llamacpp_from_pretrained
+# from model_api.llm_typing import llama_cpp_image_input
+# from model_api.llamacpp_model import llamacpp_for_caption
 
 @timer
 def extrcat_elements_from(file_path, 
@@ -67,28 +69,26 @@ def summarize_tables(tables,
                      file_path:str = "") -> list[Document]:
     """
     """
-    summarize_tables = []
+    summarized_tables = []
     tables = convert_to_str(tables)
 
     logger.info(f"Tables to summarize: {len(tables)}")
-
-    model = llamacpp_from_pretrained(ModelConfig.PHI3_INSTRUCT_REPO_ID,
-                                     ModelConfig.PHI3_INSTRUCT_FILENAME)
     
     if tables:
         for table in tables:
-            # Prompt
-            prompt_text = f"""You are an assistant tasked with summarizing tables and text. \
-                            Give a concise summary of the table or text. Table or text chunk: {table} """
-            output = model.create_completion(prompt_text)
-            output = output["choices"][0]["text"] # type: ignore
-            table_doc = Document(page_content=StrOutputParser().parse(output),
-                        metadata = {"type": "table", "source": ModelConfig.PHI3_MODEL_NAME, "file_path": file_path})
-            summarize_tables.append(table_doc)
+            # Prompt            
+            prompt_text = summarize_table.format(table=table)
+            output = ask_ollama(llm_input(model_name = ModelConfig.MISTRAL_7B_MODEL_NAME,
+                                 input = prompt_text))
+            table_doc = Document(page_content= output.response,
+                        metadata = {"type": "table", 
+                                    "source": ModelConfig.MISTRAL_7B_MODEL_NAME,
+                                    "file_path": file_path})
+            summarized_tables.append(table_doc)
 
-        logger.info(f"Tables summarized: {len(summarize_tables)}")
-        logger.info(f"Tables summarized first: {summarize_tables[0].page_content}")
-    return summarize_tables
+        logger.info(f"Tables summarized: {len(summarized_tables)}")
+        logger.info(f"Tables summarized first: {summarized_tables[0].page_content}")
+    return summarized_tables
 
 
 def texts_to_documents(texts, file_path:str = "") -> list[Document]:
@@ -97,61 +97,47 @@ def texts_to_documents(texts, file_path:str = "") -> list[Document]:
     texts = convert_to_str(texts)
     metadata = {"type": "text",  "source": 'unstructured', "file_path": file_path}
     return [Document(page_content=text, metadata=metadata) for text in texts]
-    
-
-def encode_image(image_path):
-    ''' Getting the base64 string '''
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
-
-
-def caption_images(image_bs4) -> str:
-    """
-    """
-    model = llamacpp_from_pretrained(ModelConfig.IMAGE_MODEL_REPO_ID,
-                                     ModelConfig.IMAGE_MODEL_FILENAME)
-    
-    response = model.create_chat_completion(
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type" : "text", "text": "Describe the image in detail. Be specific about graphs, such as bar plots."},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_bs4}" } }
-                ]
-            }
-        ],
-        temperature=0.2,
-    )
-    caption:str = response["choices"][0]["message"]['content'] # type: ignore
-    return caption
 
 
 def caption_single_image(image_path:str) -> Document:
     """
     """
     logger.info(f"Processing image: {image_path}")
-    image_bs4 = encode_image(image_path)
-    caption_input = llama_cpp_image_input(input=ModelConfig.EXTRACTED_IMAGE_PROMPT,
-                                          repo_id=ModelConfig.IMAGE_MODEL_REPO_ID,
-                                          filename=ModelConfig.IMAGE_MODEL_FILENAME,
-                                          model_name=ModelConfig.IMAGE_MODEL_NAME,
-                                          image_bs4=image_bs4)
+    # caption_input = llama_cpp_image_input(input=ModelConfig.EXTRACTED_IMAGE_PROMPT,
+    #                                       repo_id=ModelConfig.IMAGE_MODEL_REPO_ID,
+    #                                       filename=ModelConfig.IMAGE_MODEL_FILENAME,
+    #                                       model_name=ModelConfig.IMAGE_MODEL_NAME,
+    #                                       image_path=image_path)
+    # img_cpation = llamacpp_for_caption(caption_input)
     
-    img_cpation = llamacpp_for_caption(caption_input)
+    caption_input = llm_image_input(input=EXTRACT_IMAGE_PROMPT,
+                                    model_name=ModelConfig.IMAGE_MODEL_NAME,
+                                    image_path=image_path)
+    
+    img_cpation = ollama_caption_image(caption_input)
+    
+    
     image_doc = Document(page_content=img_cpation.response,
                          metadata = {"type": "image", "source": ModelConfig.IMAGE_MODEL_NAME, "file_path": image_path})
     return image_doc
 
 
-@timer
+def glob_images(images_dir:str) -> list[str]:
+    """
+    """
+    # glob all the images in the directory of type in GlobalConfig.IMAGES_EXTENSIONS  
+    images_list = []
+    for file in os.listdir(images_dir):
+        if file.endswith(tuple(GlobalConfig.IMAGES_EXTENSIONS)):
+            images_list.append(file)
+    return images_list
+
+
 def summarize_iamges(images_dir:str) -> list[Document]:
     """
     """
     images_caption = []
-    # glob all the images in the directory png or jpg
-    
-    images_list = list(glob(f"{images_dir}/*.jpg"))
+    images_list = glob_images(images_dir)
     logger.info(f"Images list: {images_list}")
     for image_path in images_list:
         image_doc = caption_single_image(image_path)
