@@ -19,7 +19,7 @@ def ollama_caption_image(query:llm_image_input) -> llm_output:
     chain = prompt_func | model | StrOutputParser()
 
     # Invoke the chain with the text and image data
-    response = chain.invoke({"text": query.input, "image": query.image_path})
+    response = chain.invoke({"text": query.input, "image_path": query.image_path})
     output = llm_output(response = str(response), 
                         model_name = query.model_name)
     return output
