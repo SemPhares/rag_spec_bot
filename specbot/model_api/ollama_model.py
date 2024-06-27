@@ -1,4 +1,4 @@
-from specbot.model_api.model_utils import prompt_func
+from model_api.model_utils import prompt_func
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_models.ollama import ChatOllama
 from .llm_typing import llm_input, llm_output, llm_image_input
