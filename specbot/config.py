@@ -5,8 +5,6 @@ try:
 except ImportError:
     GEMINI_API_KEY = ""
 
-from prompter.prompt_template import simple_prompt
-
 import os
 from dotenv import load_dotenv
 load_dotenv(dotenv_path = "specbot/.env", verbose=True, override=True)
@@ -17,15 +15,14 @@ class GlobalConfig():
     CHUNCK_SIZE :int = int(os.getenv("CHUNCK_SIZE")) # type: ignore
     CHUNK_OVERLAP :int = int(os.getenv("CHUNK_OVERLAP")) # type: ignore
     NUM_GPU :int = int(os.getenv("NUM_GPU")) # type: ignore
+    IMAGES_EXTENSIONS = str(os.getenv("IMAGES_EXTENSIONS")).split(',')
+    ACCEPTED_EXTENSION = str(os.getenv("ACCEPTED_EXTENSION")).split(',')
 
 class ModelConfig():
 
-    PHI3_MODEL_NAME :str = os.getenv("SUMMARIZE_MODEL") or ""
-    PHI3_INSTRUCT_REPO_ID :str = os.getenv("PHI3_INSTRUCT_REPO_ID") or ""
-    PHI3_INSTRUCT_FILENAME :str = os.getenv("PHI3_INSTRUCT_FILENAME") or ""
-
     MISTRAL_7B_MODEL_NAME :str = os.getenv("MISTRAL_7B_MODEL_NAME") or ""
     MISTRAL_7B_PATH :str = os.getenv("MISTRAL_7B_PATH") or ""
+    MISTRAL_7B_REPO_ID :str = os.getenv("MISTRAL_7B_REPO_ID") or ""
 
     IMAGE_MODEL_NAME :str = os.getenv("IMAGE_MODEL_NAME") or ""
     IMAGE_MODEL_REPO_ID :str = os.getenv("IMAGE_MODEL_REPO_ID") or ""
@@ -40,10 +37,11 @@ class ModelConfig():
     LLAMA_CPP_BASE_MODEL_FILENAME :str = os.getenv("LLAMA_CPP_BASE_MODEL_FILENAME") or ""
     LLAMA_CPP_BASE_MODEL_PATH :str = os.getenv("LLAMA_CPP_BASE_MODEL_PATH") or ""
     
-    logger.info(f"""BASE MODELS: {OLLAMA_BASE_MODEL_NAME}, {LLAMA_CPP_BASE_MODEL_REPO_ID}""")
+    logger.info(f"""LISTE DES MODELS DE BASE : OLLAMA_BASE_MODEL_NAME {OLLAMA_BASE_MODEL_NAME} 
+                    LLAMA_CPP_BASE_MODEL_NAME : {LLAMA_CPP_BASE_MODEL_NAME} 
+                    IMAGE_MODEL_NAME : {IMAGE_MODEL_NAME}
+                """)
 
     EMBEDDING_MODEL_NAME :str = os.getenv("EMBEDDING_MODEL_NAME") or ""
     EMBEDDING_MODEL_REPO_ID :str = os.getenv("EMBEDDING_MODEL_REPO_ID") or ""
     EMBEDDING_MODEL_FILENAME :str = os.getenv("EMBEDDING_MODEL_FILENAME") or ""
-
-    EXTRACTED_IMAGE_PROMPT :str = simple_prompt.EXTRACTED_IMAGE_PROMPT

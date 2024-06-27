@@ -1,1 +1,0 @@
-EXTRACTED_IMAGE_PROMPT = "Describe the image in detail. Be specific about graphs, such as bar plots."

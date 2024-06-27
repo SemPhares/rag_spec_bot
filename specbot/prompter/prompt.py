@@ -1,7 +1,6 @@
 from utils.usefull import Union, List
 from langchain_core.documents import Document
-from .prompt_template.context import context_template
-from .prompt_template.summarize import summarize_template
+from .prompt_template import context_template, summarize_template
 
 
 def doc_to_str(chunks: Union[List[Document], str]) -> str:

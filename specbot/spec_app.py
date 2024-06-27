@@ -4,7 +4,6 @@ import streamlit as st
 import streamlit_chat as sc
 
 from utils.log import logger
-from utils.usefull import spinner
 
 from model_api import ask_llm
 from doc_loader.loader import CustomeLoader

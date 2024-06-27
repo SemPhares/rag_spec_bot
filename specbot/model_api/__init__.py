@@ -18,5 +18,5 @@ def ask_llm(ccp_or_ollama:str,
             input=request))
     else:
         from .ollama_model import ask_ollama
-        return ask_ollama(llm_input(model_name=ccp_or_ollama,
+        return ask_ollama(llm_input(model_name=ModelConfig.OLLAMA_BASE_MODEL_NAME,
                                     input=request))

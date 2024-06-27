@@ -1,6 +1,6 @@
 from llama_cpp import Llama
 from utils.log import logger
-from config import ModelConfig
+from .model_utils import encode_image
 from .llm_typing import llam_cpp_local_input, llm_output, llama_cpp_image_input
 
 
@@ -33,29 +33,20 @@ def llamacpp_from_pretrained(repo_id:str,
     return model
 
 
-def llamacpp_for_embedding() -> Llama:
-    """
-    """
-    
-    model = llamacpp_from_pretrained(ModelConfig.EMBEDDING_MODEL_REPO_ID,
-                                     ModelConfig.EMBEDDING_MODEL_FILENAME)
-    return model
-
-
 def llamacpp_for_caption(query:llama_cpp_image_input) -> llm_output:
     """
     """
     
     model = llamacpp_from_pretrained(query.repo_id,
                                      query.filename)
-    
+    image_bs4 = encode_image(query.image_path)
     response = model.create_chat_completion(
         messages = [
             {
                 "role": "user",
                 "content": [
                     {"type" : "text", "text": query.input},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{query.image_bs4}" } }
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_bs4}" } }
                 ]
             }
         ],
