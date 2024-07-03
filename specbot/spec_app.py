@@ -30,9 +30,12 @@ if len(uploaded_files) > 0: # type: ignore
     # Write liste of temporary files
     tempfile_path_list = []
     for file in uploaded_files: # type: ignore
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        temp_file.write(file.getvalue())
-        tempfile_path_list.append(temp_file.name)
+        temp_path = f"specbot/store/loaded_files/{file.name}" 
+        with open(temp_path, "wb") as f:
+            f.write(file.getvalue())
+            # temp_file = tempfile.NamedTemporaryFile(delete=False)
+            # temp_file.write(file.getvalue())
+            tempfile_path_list.append(temp_path)
 
     # log the temporary file names
     logger.info(f"Temp file names: {tempfile_path_list}")

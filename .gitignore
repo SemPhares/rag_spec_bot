@@ -8,4 +8,8 @@ specbot/model_api/models_w
 test_notebook/
 .DS_Store
 log/*
+specbot/store/extracted_images/*
+specbot/store/loaded_files/*
+specbot/store/vectorstore/*
 specbot/secret.py
+

@@ -13,5 +13,4 @@ streamlit-chat==0.1.1
 pypdf
 fastembed
 docx2txt
-python-pptx
 python-dotenv

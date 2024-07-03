@@ -3,7 +3,6 @@ from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_community.document_loaders.word_document import Docx2txtLoader
 from langchain_community.document_loaders.excel import UnstructuredExcelLoader
 
-import tempfile
 from typing import List
 from utils.log import logger
 from utils.usefull import timer
@@ -22,9 +21,6 @@ class CustomeLoader(BaseLoader):
                           'xls':UnstructuredExcelLoader,
                           'xlsx':UnstructuredExcelLoader}
     
-    # Create a temporary directory
-    TEMP_DIR = tempfile.TemporaryDirectory()
-
 
     def __init__(self,
                  filename_list: List[str],
@@ -39,7 +35,7 @@ class CustomeLoader(BaseLoader):
         self.zip_name_path = zip(self.filename_list, self.tempfile_path_list)
 
 
-    def extract_file_extension(self, file_name) -> str:
+    def extract_file_extension(self, file_name:str) -> str:
         """
         Return the extension of the file
 
@@ -96,7 +92,9 @@ class CustomeLoader(BaseLoader):
             # liste de documents
             # documents:list = loader(file_path = path).load() # type: ignore
             # all_documents.extend(documents)
-            other_documents = extract_everithing_from_doc(path, self.TEMP_DIR) # type: ignore
+            other_documents = extract_everithing_from_doc(path, 
+                                                          GlobalConfig.EXTRACT_IMG, 
+                                                          GlobalConfig.EXTRACTED_IMG_DIR) # type: ignore
             all_documents.extend(other_documents)
         return all_documents
     

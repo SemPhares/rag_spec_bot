@@ -4,13 +4,15 @@ install_ollama:
 serve_ollama:
 	/usr/local/bin/ollama serve
 
+download_base_models:
+	ollama pull llama3
+	ollama pull llava:7b
+	ollama pull mistral:7b
+
 install_env:
 	pip install -qr requirements.txt
-	pip install -q "unstructured[all-docs]"
+	pip install -q "unstructured[docx,pdf,xlsx]"
 
-
-# download_models_gguf:
-# 	python app/specbot/model_api/models_w/download-models.py
 
 run:
 	streamlit run specbot/spec_app.py 
