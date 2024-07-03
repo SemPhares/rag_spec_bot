@@ -1,8 +1,12 @@
+from pathlib import Path
+from specbot.config import ModelConfig
+from .spliter import text_splitter
 from utils.usefull import spinner, timer
 from langchain_core.documents import Document
 from specbot.retriever.spliter import text_splitter
 from specbot.retriever.doc_transformer import others_transformer
 from langchain_community.vectorstores.faiss import FAISS
+from langchain_community.vectorstores.chroma import Chroma
 from langchain.vectorstores.utils import filter_complex_metadata
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain.retrievers import ContextualCompressionRetriever
@@ -21,12 +25,34 @@ def filter_and_split(documents: list[Document]) -> list[Document]:
     return documents
 
 
+def doc_ids(documents: list[Document]) -> str:
+    """
+    Construit un identifiant unique sur la base des metadata de tous des documents
+    """
+    unique_source = set()
+    for doc in documents:
+        unique_source.add(doc.metadata["source"])
+    
+    _id = "_".join(list(unique_source))
+
+    docs_id = f"{len(documents)}-{_id}.db"
+    return docs_id
+    
+
 def get_retriever(documents: list[Document]) -> VectorStoreRetriever:
     """
     """
     documents = filter_and_split(documents)
     # Create a FAISS vector store and save embeddings
-    vector_store = FAISS.from_documents(documents, embedder) # type: ignore
+    store_id = Path("specbot/store/vectorstore/", doc_ids(documents))
+    if not store_id.exists():
+        store_id.mkdir(parents=True)
+        # store_id.touch()
+    vector_store = Chroma.from_documents(documents = documents,
+                                            embedding = embedder,
+                                            persist_directory = str(store_id)) # type: ignore
+    vector_store.persist()
+
     # Create a retriever
     retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
@@ -44,7 +70,7 @@ def rerank_docs(retriever:VectorStoreRetriever,
     """
     """
     # Compress the retrieved documents
-    compressor = JinaRerank()
+    compressor = JinaRerank(jina_api_key = ModelConfig.JINA_API_KEY)
     compression_retriever = ContextualCompressionRetriever(
         base_compressor=compressor, base_retriever= retriever)
 

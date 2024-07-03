@@ -1,7 +1,7 @@
 from llama_cpp import Llama
 from specbot.utils.log import logger
 from specbot.model_api.model_utils import encode_image
-from specbot.model_api.llm_typing import llam_cpp_local_input, llm_output, llama_cpp_image_input
+from specbot.model_api.llm_typing import llama_cpp_local_input, llm_output, llama_cpp_image_input
 
 
 llama_cpp_config = {
@@ -53,13 +53,13 @@ def llamacpp_for_caption(query:llama_cpp_image_input) -> llm_output:
         temperature=0.2,
     )
     caption:str = response["choices"][0]["message"]['content'] # type: ignore
-    output = llm_output(response=caption, model_name=query.model_name)
+    output = llm_output(response=caption, llm_name=query.llm_name)
     return output
 
 
-def ask_llmcpp(query:llam_cpp_local_input) -> llm_output:
+def ask_llmcpp(query:llama_cpp_local_input) -> llm_output:
     
-    llama_cpp = Llama(model_path= query.model_path,
+    llama_cpp = Llama(model_path= query.llm_path,
                       **llama_cpp_config)
     
     # llama_cpp = llamacpp_from_pretrained(query.repo_id,
@@ -67,6 +67,6 @@ def ask_llmcpp(query:llam_cpp_local_input) -> llm_output:
 
     output = llama_cpp.create_completion(query.input) 
     output = output["choices"][0]["text"] # type: ignore
-    output = llm_output(response=output, model_name=query.model_name)
+    output = llm_output(response=output, llm_name=query.llm_name)
     return output
 

@@ -1,4 +1,5 @@
 import os
+from tqdm import tqdm
 from specbot.utils.log import logger
 from specbot.utils.usefull import timer
 from specbot.config import ModelConfig, GlobalConfig
@@ -12,16 +13,22 @@ from specbot.prompter.prompt_template import EXTRACT_IMAGE_PROMPT, summarize_tab
 # from model_api.llamacpp_model import llamacpp_for_caption
 
 @timer
-def extrcat_elements_from(file_path, 
+def extrcat_elements_from(file_path:str,
+                          extract_images:bool, 
                           image_output_dir:str):
     """
     
     """
-    raw_elements = partition(file_path,
+    if extract_images:
+        raw_elements = partition(file_path,
                              strategy='hi_res',
                              extract_images_in_pdf=True,
                              chunking_strategy="by_title",
                              extract_image_block_output_dir=image_output_dir)
+    else:
+        raw_elements = partition(file_path,
+                                 strategy='FAST')
+    
     return raw_elements
 
 
@@ -78,7 +85,7 @@ def summarize_tables(tables,
         for table in tables:
             # Prompt            
             prompt_text = summarize_table.format(table=table)
-            output = ask_ollama(llm_input(model_name = ModelConfig.MISTRAL_7B_MODEL_NAME,
+            output = ask_ollama(llm_input(llm_name = ModelConfig.MISTRAL_7B_MODEL_NAME,
                                  input = prompt_text))
             table_doc = Document(page_content= output.response,
                         metadata = {"type": "table", 
@@ -103,15 +110,9 @@ def caption_single_image(image_path:str) -> Document:
     """
     """
     logger.info(f"Processing image: {image_path}")
-    # caption_input = llama_cpp_image_input(input=ModelConfig.EXTRACTED_IMAGE_PROMPT,
-    #                                       repo_id=ModelConfig.IMAGE_MODEL_REPO_ID,
-    #                                       filename=ModelConfig.IMAGE_MODEL_FILENAME,
-    #                                       model_name=ModelConfig.IMAGE_MODEL_NAME,
-    #                                       image_path=image_path)
-    # img_cpation = llamacpp_for_caption(caption_input)
     
     caption_input = llm_image_input(input=EXTRACT_IMAGE_PROMPT,
-                                    model_name=ModelConfig.IMAGE_MODEL_NAME,
+                                    llm_name=ModelConfig.IMAGE_MODEL_NAME,
                                     image_path=image_path)
     
     img_cpation = ollama_caption_image(caption_input)
@@ -129,7 +130,9 @@ def glob_images(images_dir:str) -> list[str]:
     images_list = []
     for file in os.listdir(images_dir):
         if file.endswith(tuple(GlobalConfig.IMAGES_EXTENSIONS)):
-            images_list.append(file)
+            image_path = os.path.join(images_dir, file)
+            images_list.append(image_path)
+    logger.info(f"Images list: {images_list}")
     return images_list
 
 
@@ -138,20 +141,27 @@ def summarize_iamges(images_dir:str) -> list[Document]:
     """
     images_caption = []
     images_list = glob_images(images_dir)
-    logger.info(f"Images list: {images_list}")
-    for image_path in images_list:
+
+    # # Parallelize the captioning process
+    # from concurrent.futures import ThreadPoolExecutor
+    # with ThreadPoolExecutor() as executor:
+    #     image_docs = list(executor.map(caption_single_image, images_list))
+
+    for image_path in tqdm(images_list, desc="Captioning Images"):
         image_doc = caption_single_image(image_path)
         images_caption.append(image_doc)
+
     return images_caption
 
 
 @timer
 def extract_everithing_from_doc(file_path:str,
+                                extract_images:bool,
                                 image_output_dir:str):
     """
     """
     # Extract elements
-    elements = extrcat_elements_from(file_path, image_output_dir)
+    elements = extrcat_elements_from(file_path, extract_images, image_output_dir)
     # Extract text and tables
     texts, tables, others = elements_text_and_tables(elements)
     # Summarize tables
