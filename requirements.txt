@@ -6,11 +6,12 @@ langchain-core==0.1.52
 langchain-text-splitters==0.0.2
 llama_cpp_python==0.2.75
 pydantic==2.7.1
+python-dotenv==1.0.1
 requests==2.31.0
+fastembed
 sentence-transformers==2.7.0
 streamlit==1.34.0
 streamlit-chat==0.1.1
+tqdm==4.66.4
 pypdf
-fastembed
 docx2txt
-python-dotenv
