@@ -24,7 +24,7 @@ def extrcat_elements_from(file_path:str,
                              extract_image_block_output_dir=image_output_dir)
     else:
         raw_elements = partition(file_path,
-                                 strategy='FAST')
+                                 strategy='fast')
     
     return raw_elements
 
@@ -139,11 +139,6 @@ def summarize_iamges(images_dir:str) -> list[Document]:
     images_caption = []
     images_list = glob_images(images_dir)
 
-    # # Parallelize the captioning process
-    # from concurrent.futures import ThreadPoolExecutor
-    # with ThreadPoolExecutor() as executor:
-    #     image_docs = list(executor.map(caption_single_image, images_list))
-
     for image_path in tqdm(images_list, desc="Captioning Images"):
         image_doc = caption_single_image(image_path)
         images_caption.append(image_doc)
@@ -157,6 +152,9 @@ def extract_everithing_from_doc(file_path:str,
                                 image_output_dir:str):
     """
     """
+    image_docs = []
+    image_output_dir = os.path.join(image_output_dir, file_path.split('/')[-1].split('.')[0])
+    
     # Extract elements
     elements = extrcat_elements_from(file_path, extract_images, image_output_dir)
     # Extract text and tables
@@ -167,8 +165,9 @@ def extract_everithing_from_doc(file_path:str,
     text_docs = texts_to_documents(texts, file_path)
     # Other to documents
     others_docs = texts_to_documents(others, file_path)
-    # Summarize images
-    image_docs = summarize_iamges(image_output_dir)
+    if extract_images:
+        # Summarize images
+        image_docs = summarize_iamges(image_output_dir)
     # Combine all the documents into one list
     all_documents = text_docs + tables_docs + image_docs + others_docs
 

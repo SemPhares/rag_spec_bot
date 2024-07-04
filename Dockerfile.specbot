@@ -1,12 +1,15 @@
 FROM python:3.10
 
-EXPOSE 8501
-
 WORKDIR /.
 
 COPY . .
 
-RUN pip install -qr requirements.txts
-RUN pip install -q "unstructured[all-docs]"
-COPY . .
-CMD ["streamlit" "run" "specbot/spec_app.py"]
+# RUN pip install -qr requirements.txt
+# RUN pip install -q "unstructured[all-docs]"
+# install make
+RUN apt-get update && apt-get install -y make
+RUN make install_env
+
+EXPOSE 8501
+
+CMD ["make" "run"]

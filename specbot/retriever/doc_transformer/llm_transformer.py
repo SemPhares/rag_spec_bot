@@ -1,4 +1,4 @@
-from utils.usefull import List
+from typing import List
 from config import ModelConfig
 from model_api.llamacpp_model import llamacpp_from_pretrained
 

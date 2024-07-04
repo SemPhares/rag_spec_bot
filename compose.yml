@@ -8,6 +8,9 @@ services:
     ports:
       - 8501:8501
 
+    volumes:
+      - specbot/store/vectorstore:/specbot/store/vectorstore
+ 
 
   ollama_api:
     container_name: ollama_container
@@ -15,5 +18,8 @@ services:
     ports:
       - 11434:11434
 
+    volumes:
+      - ollama:/root/.ollama
+    
     restart: always
     

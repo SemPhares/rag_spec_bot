@@ -1,7 +1,8 @@
+import os
 import time
+import shutil
 import streamlit as st
 from .log import logger
-from typing import Union, List
 
 
 # Créer un décorateur pour mesurer le temps d'exécution d'une fonction
@@ -22,3 +23,20 @@ def spinner(func):
             result = func(*args, **kwargs)
         return result
     return wrapper
+
+
+def stream_data(text_to_stream:str):
+    for word in text_to_stream.split(" "):
+        yield word + " "
+        time.sleep(0.02)
+
+
+
+
+def supprimer_contenu_dossier(chemin_dossier):
+    for nom in os.listdir(chemin_dossier):
+        chemin_complet = os.path.join(chemin_dossier, nom)
+        if os.path.isdir(chemin_complet):
+            shutil.rmtree(chemin_complet)
+        else:
+            os.remove(chemin_complet)

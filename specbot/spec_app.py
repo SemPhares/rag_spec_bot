@@ -1,19 +1,28 @@
-# Import necessary libraries
-import tempfile
 import streamlit as st
 import streamlit_chat as sc
 
 from utils.log import logger
 
 from model_api import ask_llm
+from utils.usefull import supprimer_contenu_dossier
 from doc_loader.loader import CustomeLoader
 from prompter.prompt import build_rag_prompt
-from retriever.vectorstore import retrieve_docs
+from retriever.vectorstore import retrieve_docs, get_retriever
 
 
 # Set the title for the Streamlit app
 st.title("SPECBOT 🫡")
 logger.info("App started")
+
+
+reload = st.sidebar.button("Reload")
+if reload:
+    supprimer_contenu_dossier('specbot/store/extracted_images')
+    supprimer_contenu_dossier('specbot/store/loaded_files')
+    # supprimer_contenu_dossier('specbot/store/vectorstore')
+    
+    st.rerun()
+
 
 # Create a file uploader in the sidebar
 uploaded_files = st.sidebar.file_uploader("Upload File", accept_multiple_files=True)
@@ -42,6 +51,7 @@ if len(uploaded_files) > 0: # type: ignore
 
     st.session_state['docs'] = CustomeLoader(filename_list=filename_list,
                          tempfile_path_list=tempfile_path_list).load()
+    retriever = get_retriever(st.session_state['docs'])
 
     logger.info(f"Number of documents: {len(st.session_state['docs'])}")
 
@@ -70,13 +80,13 @@ if len(uploaded_files) > 0: # type: ignore
 
         if submit_button and user_input:
             logger.info(f"User question: {user_input}")
-            retrieved_docs = retrieve_docs(user_input,  st.session_state['docs'])
+            retrieved_docs = retrieve_docs(user_input, retriever)
             prompt = build_rag_prompt(user_input, retrieved_docs)
             logger.info(f"Prompt: {prompt}")
             output = ask_llm('ollama', prompt)
-            logger.info(f"Output: {output}")
+            logger.info(f"Output: {output.response}")
             st.session_state['past'].append(user_input)
-            st.session_state['generated'].append(output)
+            st.session_state['generated'].append(output.response)
 
     # Display chat history
     if st.session_state['generated']:

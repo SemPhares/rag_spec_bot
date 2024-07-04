@@ -20,9 +20,12 @@ class GlobalConfig():
     IMAGES_EXTENSIONS = str(os.getenv("IMAGES_EXTENSIONS")).split("#") # type: ignore
     ACCEPTED_EXTENSION = str(os.getenv("ACCEPTED_EXTENSION")).split("#")
     
-    EXTRACT_IMG :bool = bool(os.getenv("EXTRACT_IMG")) 
+    EXTRACT_IMG :bool = bool(int(os.getenv("EXTRACT_IMG"))) 
     EXTRACTED_IMG_DIR = os.getenv("EXTRACTED_IMG_DIR") or ""
 
+    logger.info(f"""Configuration : 
+                 EXTRACT_IMG : {EXTRACT_IMG},
+                 EXTRACTED_IMG_DIR : {EXTRACTED_IMG_DIR}""")
 
 class ModelConfig():
 
@@ -48,3 +51,8 @@ class ModelConfig():
     EMBEDDING_MODEL_NAME :str = os.getenv("EMBEDDING_MODEL_NAME") or ""
     EMBEDDING_MODEL_REPO_ID :str = os.getenv("EMBEDDING_MODEL_REPO_ID") or ""
     EMBEDDING_MODEL_FILENAME :str = os.getenv("EMBEDDING_MODEL_FILENAME") or ""
+
+    logger.info(f"""Configuration : 
+                EMBEDDING_MODEL_NAME : {EMBEDDING_MODEL_NAME},
+                IMAGE_MODEL_NAME : {IMAGE_MODEL_NAME}
+                """)

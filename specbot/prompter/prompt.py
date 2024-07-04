@@ -1,4 +1,4 @@
-from utils.usefull import Union, List
+from typing import Union, List
 from langchain_core.documents import Document
 from .prompt_template import context_template, summarize_template
 

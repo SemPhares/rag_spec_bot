@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from utils.usefull import List
+from typing import List
 from sentence_transformers import SentenceTransformer
 
 
@@ -17,8 +17,17 @@ class sentence_embeder():
         """
         
         """
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.embeder = SentenceTransformer(model_name_or_path= self.model_name, device= self.device)
+        # load torch device
+
+        if torch.cuda.is_available():
+            self.device = "cuda"
+        elif torch.backends.mps.is_available():
+            self.device = "mps"  # Use MPS if available on macOS with Apple Silicon
+        else:
+            self.device = "cpu"
+            
+        self.embeder = SentenceTransformer(model_name_or_path= self.model_name, 
+                                           device= self.device)
 
 
     def embed(self, input_query:str):

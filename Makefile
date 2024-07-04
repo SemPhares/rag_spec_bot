@@ -1,8 +1,5 @@
 install_ollama:
 	curl -fsSL https://ollama.com/install.sh | sh
-
-
-serve_ollama:
 	/usr/local/bin/ollama serve
 
 download_base_models:

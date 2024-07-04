@@ -79,12 +79,12 @@ class CustomeLoader(BaseLoader):
         all_documents = []
 
         # Load all the documents
-        for filename, path in self.zip_name_path:
+        for filename, file_path in self.zip_name_path:
             file_extension = self.extract_file_extension(filename)
 
             if file_extension in GlobalConfig.IMAGES_EXTENSIONS:
                 logger.info(f"Image file identified: {filename}")
-                document = caption_single_image(path)
+                document = caption_single_image(file_path)
                 all_documents.append(document)
                 continue
 
@@ -92,7 +92,7 @@ class CustomeLoader(BaseLoader):
             # liste de documents
             # documents:list = loader(file_path = path).load() # type: ignore
             # all_documents.extend(documents)
-            other_documents = extract_everithing_from_doc(path, 
+            other_documents = extract_everithing_from_doc(file_path, 
                                                           GlobalConfig.EXTRACT_IMG, 
                                                           GlobalConfig.EXTRACTED_IMG_DIR) # type: ignore
             all_documents.extend(other_documents)

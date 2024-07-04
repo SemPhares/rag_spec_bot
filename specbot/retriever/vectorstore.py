@@ -1,14 +1,14 @@
 from pathlib import Path
+from utils.log import logger
 from config import ModelConfig
 from .spliter import text_splitter
 from utils.usefull import spinner, timer
 from langchain_core.documents import Document
 from .doc_transformer import others_transformer
-from langchain_community.vectorstores.faiss import FAISS
 from langchain_community.vectorstores.chroma import Chroma
-from langchain.vectorstores.utils import filter_complex_metadata
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain.retrievers import ContextualCompressionRetriever
+from langchain.vectorstores.utils import filter_complex_metadata
 from langchain_community.document_compressors.jina_rerank import JinaRerank
 
 # Get the embedder
@@ -37,7 +37,7 @@ def doc_ids(documents: list[Document]) -> str:
     docs_id = f"{len(documents)}-{_id}.db"
     return docs_id
     
-
+@spinner
 def get_retriever(documents: list[Document]) -> VectorStoreRetriever:
     """
     """
@@ -47,20 +47,22 @@ def get_retriever(documents: list[Document]) -> VectorStoreRetriever:
     if not store_id.exists():
         store_id.mkdir(parents=True)
         # store_id.touch()
-    vector_store = Chroma.from_documents(documents = documents,
-                                            embedding = embedder,
-                                            persist_directory = str(store_id)) # type: ignore
-    vector_store.persist()
+        vector_store = Chroma.from_documents(documents = documents,
+                                             embedding = embedder,
+                                             persist_directory = str(store_id))
+    else:
+        logger.info(f"Vector store already exists at {store_id}")   
+        vector_store = Chroma(persist_directory = str(store_id), 
+                              embedding_function = embedder)
 
     # Create a retriever
     retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={
                 "k": 10,
-                "score_threshold": 0.7,
+                "score_threshold": 0.6,
             },
         )
-    globals()["retriever"] = retriever # type: ignore
     return retriever
 
 
@@ -79,15 +81,12 @@ def rerank_docs(retriever:VectorStoreRetriever,
 
 @timer
 @spinner
-def retrieve_docs(query:str, 
-                  documents: list) -> list[Document]:
+def retrieve_docs(query:str,
+                  retriever:VectorStoreRetriever) -> list[Document]:
     """
     
     """
 
-    documents = filter_and_split(documents)
-    # Create a retriever
-    retriever = get_retriever(documents)
     # Rerank the documents
     retrieved_docs = rerank_docs(retriever, query)
     # Retrieve documents

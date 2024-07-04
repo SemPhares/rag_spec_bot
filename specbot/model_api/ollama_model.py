@@ -1,3 +1,4 @@
+from config import GlobalConfig
 from model_api.model_utils import prompt_func
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_models.ollama import ChatOllama
@@ -11,7 +12,7 @@ def ollama_caption_image(query:llm_image_input) -> llm_output:
                        temperature=0.3,
                        top_k=30,
                        num_ctx = 512,
-                       num_gpu = 1,
+                       num_gpu = GlobalConfig.NUM_GPU,
                        repeat_penalty = 1.2,
                        top_p = 0.7)
         
@@ -34,13 +35,14 @@ def ask_ollama(query:llm_input) -> llm_output:
                        num_ctx = 512,
                        # The number of GPUs to use. 
                        # On macOS it defaults to 1 to enable metal support, 0 to disable.
-                       num_gpu = 1,
+                       num_gpu = GlobalConfig.NUM_GPU,
                        repeat_penalty = 1.2,
                        top_p = 0.7)
     
     chain =  model | StrOutputParser()
     response = chain.invoke(query.input)
-    output = llm_output(response = str(response), 
+    response = response.replace("[/INST]", "")
+    output = llm_output(response = response, 
                         llm_name = query.llm_name)
     return output
 
