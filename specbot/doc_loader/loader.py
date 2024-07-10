@@ -6,7 +6,7 @@ from langchain_community.document_loaders.excel import UnstructuredExcelLoader
 from typing import List
 from utils.log import logger
 from utils.usefull import timer
-from config import GlobalConfig
+from config.global_config import GlobalConfig
 from langchain_core.documents import Document
 from langchain_core.document_loaders import BaseLoader
 from .lodaer_utils import extract_everithing_from_doc, caption_single_image

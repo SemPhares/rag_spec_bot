@@ -2,7 +2,8 @@ import os
 from tqdm import tqdm
 from utils.log import logger
 from utils.usefull import timer
-from config import ModelConfig, GlobalConfig
+from config.model_config import ModelConfig
+from config.global_config import GlobalConfig
 from langchain_core.documents import Document
 from unstructured.partition.auto import partition
 from model_api.llm_typing import llm_image_input, llm_input

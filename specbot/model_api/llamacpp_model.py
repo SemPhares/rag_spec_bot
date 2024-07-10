@@ -1,5 +1,6 @@
 from llama_cpp import Llama
 from utils.log import logger
+from config.global_config import GlobalConfig
 from .model_utils import encode_image
 from .llm_typing import llama_cpp_local_input, llm_output, llama_cpp_image_input
 
@@ -7,8 +8,8 @@ from .llm_typing import llama_cpp_local_input, llm_output, llama_cpp_image_input
 llama_cpp_config = {
     "n_gpu_layers": -1,
     "n_threads" : 4,
-    "temperature": 0.75,
-    "n_ctx": 1024,
+    "temperature": GlobalConfig.TEMPERATURE,
+    "n_ctx": GlobalConfig.CONTEXT_WINDOW,
     "split_mode": 0,
     "main_gpu": 2,
     "verbose": False}

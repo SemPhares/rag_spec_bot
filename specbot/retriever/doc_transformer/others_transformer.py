@@ -1,4 +1,5 @@
-from config import ModelConfig, GlobalConfig
+from config.model_config import ModelConfig 
+from config.global_config import GlobalConfig
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 
 ollama_embeder = OllamaEmbeddings(model=ModelConfig.EMBEDDING_MODEL_NAME, 

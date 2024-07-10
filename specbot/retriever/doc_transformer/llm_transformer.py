@@ -1,5 +1,5 @@
 from typing import List
-from config import ModelConfig
+from config.model_config import ModelConfig
 from model_api.llamacpp_model import llamacpp_from_pretrained
 
 class llama_embeder():

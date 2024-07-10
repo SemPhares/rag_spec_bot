@@ -11,5 +11,5 @@ log/*
 specbot/store/extracted_images/*
 specbot/store/loaded_files/*
 specbot/store/vectorstore/*
-specbot/secret.py
+specbot/config/secret.py
 

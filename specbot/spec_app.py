@@ -1,13 +1,15 @@
 import streamlit as st
 import streamlit_chat as sc
 
+from config.global_config import GlobalConfig
 from utils.log import logger
 
+from prompter.prompt_typing import prompt_input
 from model_api import ask_llm
 from utils.usefull import supprimer_contenu_dossier
 from doc_loader.loader import CustomeLoader
 from prompter.prompt import build_rag_prompt
-from retriever.vectorstore import retrieve_docs, get_retriever
+from retriever.vectorstore import retrieve_docs
 
 
 # Set the title for the Streamlit app
@@ -42,8 +44,6 @@ if len(uploaded_files) > 0: # type: ignore
         temp_path = f"specbot/store/loaded_files/{file.name}" 
         with open(temp_path, "wb") as f:
             f.write(file.getvalue())
-            # temp_file = tempfile.NamedTemporaryFile(delete=False)
-            # temp_file.write(file.getvalue())
             tempfile_path_list.append(temp_path)
 
     # log the temporary file names
@@ -51,7 +51,6 @@ if len(uploaded_files) > 0: # type: ignore
 
     st.session_state['docs'] = CustomeLoader(filename_list=filename_list,
                          tempfile_path_list=tempfile_path_list).load()
-    retriever = get_retriever(st.session_state['docs'])
 
     logger.info(f"Number of documents: {len(st.session_state['docs'])}")
 
@@ -80,10 +79,11 @@ if len(uploaded_files) > 0: # type: ignore
 
         if submit_button and user_input:
             logger.info(f"User question: {user_input}")
-            retrieved_docs = retrieve_docs(user_input, retriever)
-            prompt = build_rag_prompt(user_input, retrieved_docs)
+            retrieved_docs = retrieve_docs(user_input, st.session_state['docs'])
+            prompt = build_rag_prompt(prompt_input(query=user_input,
+                                                   retrieved_chunks=retrieved_docs))
             logger.info(f"Prompt: {prompt}")
-            output = ask_llm('ollama', prompt)
+            output = ask_llm(GlobalConfig.MAIN_ASK_FRAMEWORK, prompt)
             logger.info(f"Output: {output.response}")
             st.session_state['past'].append(user_input)
             st.session_state['generated'].append(output.response)
