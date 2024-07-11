@@ -12,4 +12,4 @@ specbot/store/extracted_images/*
 specbot/store/loaded_files/*
 specbot/store/vectorstore/*
 specbot/config/secret.py
-
+specbot/evaluate/evaluation.ipynb
