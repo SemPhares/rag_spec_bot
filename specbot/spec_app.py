@@ -1,15 +1,14 @@
 import streamlit as st
 import streamlit_chat as sc
-
-from config.global_config import GlobalConfig
 from utils.log import logger
-
-from prompter.prompt_typing import prompt_input
 from model_api import ask_llm
-from utils.usefull import supprimer_contenu_dossier
 from doc_loader.loader import CustomeLoader
 from prompter.prompt import build_rag_prompt
+from config.global_config import GlobalConfig
+from prompter.prompt_typing import prompt_input
 from retriever.vectorstore import retrieve_docs
+from utils.usefull import supprimer_contenu_dossier
+from evaluate import Evaluation, evaluation_input, evaluation_model
 
 
 # Set the title for the Streamlit app
@@ -21,7 +20,6 @@ reload = st.sidebar.button("Reload")
 if reload:
     supprimer_contenu_dossier('specbot/store/extracted_images')
     supprimer_contenu_dossier('specbot/store/loaded_files')
-    # supprimer_contenu_dossier('specbot/store/vectorstore')
     
     st.rerun()
 
@@ -31,16 +29,16 @@ uploaded_files = st.sidebar.file_uploader("Upload File", accept_multiple_files=T
 
 
 # Handle file upload
-if len(uploaded_files) > 0: # type: ignore
+if len(uploaded_files) > 0: 
     # Streamlit logger waitin bar 
 
-    logger.info(f"File uploaded: {len(uploaded_files)}") # type: ignore
-    filename_list = [file.name for file in uploaded_files] # type: ignore
+    logger.info(f"File uploaded: {len(uploaded_files)}")
+    filename_list = [file.name for file in uploaded_files] 
     # log the file names
     logger.info(f"File names: {filename_list}")
     # Write liste of temporary files
     tempfile_path_list = []
-    for file in uploaded_files: # type: ignore
+    for file in uploaded_files: 
         temp_path = f"specbot/store/loaded_files/{file.name}" 
         with open(temp_path, "wb") as f:
             f.write(file.getvalue())
@@ -50,7 +48,7 @@ if len(uploaded_files) > 0: # type: ignore
     logger.info(f"Temp file names: {tempfile_path_list}")
 
     st.session_state['docs'] = CustomeLoader(filename_list=filename_list,
-                         tempfile_path_list=tempfile_path_list).load()
+                                             tempfile_path_list=tempfile_path_list).load()
 
     logger.info(f"Number of documents: {len(st.session_state['docs'])}")
 
@@ -88,6 +86,15 @@ if len(uploaded_files) > 0: # type: ignore
             st.session_state['past'].append(user_input)
             st.session_state['generated'].append(output.response)
 
+            # Evaluation case
+            test_input = evaluation_input(
+                input = user_input,
+                actual_output = output.response,
+                retrieval_context = retrieved_docs,
+                file_name = filename_list)
+            
+            eval_model = evaluation_model(model_name = GlobalConfig.MAIN_ASK_FRAMEWORK)
+
     # Display chat history
     if st.session_state['generated']:
         with response_container:
@@ -95,3 +102,11 @@ if len(uploaded_files) > 0: # type: ignore
             for i in range(len(st.session_state['generated'])):
                 sc.message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="personas")
                 sc.message(st.session_state["generated"][i], key=str(i), avatar_style="micah")
+        
+    if GlobalConfig.EVALUATE_RAG :
+
+        eval_llm = Evaluation(test_input = test_input,
+                              evaluation_model = eval_model)
+        eval_llm.evaluation(evaluation_mode = "both",
+                            display_mode = "dataframe")
+        logger.info("Evaluation done")

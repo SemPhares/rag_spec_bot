@@ -8,7 +8,7 @@ except ImportError:
 
 import os
 from dotenv import load_dotenv
-load_dotenv(dotenv_path = "specbot/.env", verbose=True, override=True)
+load_dotenv(dotenv_path = "specbot/config/.env", verbose=True, override=True)
   
 
 class ApiConfig():
@@ -20,7 +20,7 @@ class ApiConfig():
 class PromptConfig():
 
     PROMPT_CATEGORIES :list = str(os.getenv("PROMPT_CATEGORIES")).split("#")
-    REWRITE_QUERY :bool = bool(int(os.getenv("REWRITE_QUERY")))
+    REWRITE_QUERY :bool = bool(int(str(os.getenv("REWRITE_QUERY"))))
 
 
 class ModelConfig():
