@@ -8,7 +8,7 @@ from .prompt_typing import (prompt_input, prompt_output,
                             classification_prompt_input)
 
 # from model_api.gemini_model import clasify_with_gemini, ask_gemini
-from model_api.ollama_model import clasify_with_ollama, ask_ollama
+from model_api.ollama_model import clasify_with_ollama
 
 
 def classify_user_query(query: str) -> str:
@@ -58,10 +58,12 @@ def rewrite_query(query: str) -> str:
         rewrite_prompt = build_rewrite_prompt(query=query)
         # outout = ask_gemini(llm_input(llm_name=ModelConfig.GEMINI_MODEL_NAME,
         #                             input=rewrite_prompt))
-        outout = ask_ollama(llm_input(llm_name=ModelConfig.MISTRAL_7B_MODEL_NAME,
-                                      input=rewrite_prompt))
         
+        # use classify_with_ollama instead of ask_gemini to rewrite the query using CONSERVATIVE_TEMPERATURE
+        outout = clasify_with_ollama(llm_input(llm_name=ModelConfig.MISTRAL_7B_MODEL_NAME,
+                                      input=rewrite_prompt))
         logger.info(f"Query rewritten to: {outout.response}")
+        
         return outout.response
     
     else:
