@@ -4,8 +4,7 @@ from model_api.llm_typing import llm_input
 from config.model_config import PromptConfig, ModelConfig
 from .prompt import (build_classification_prompt,
                      build_rewrite_prompt)
-from .prompt_typing import (prompt_input, prompt_output,
-                            classification_prompt_input)
+from .prompt_typing import classification_prompt_input
 
 # from model_api.gemini_model import clasify_with_gemini, ask_gemini
 from model_api.ollama_model import clasify_with_ollama
