@@ -1,6 +1,6 @@
-from .llm_typing import llm_input, llm_output, llama_cpp_local_input
-from config.model_config import ModelConfig
 from utils.usefull import spinner
+from config.model_config import ModelConfig
+from .llm_typing import llm_input, llm_output, llama_cpp_local_input
 
 @spinner
 def ask_llm(ccp_or_ollama:str, 
