@@ -46,6 +46,7 @@ summarize_table= PromptTemplate.from_template(
     {table}
     ---------------------
     Your summary should be clear, precise and cover the main points of the text."
+    
     Answer: 
 
 
@@ -62,7 +63,16 @@ classify_template = PromptTemplate.from_template(
     {text_to_classify}
     ---------------------
 
-    Your answer should strictily be one of the following categories: {categories}
+    Your answer should strictily be one of the following categories: {categories}.
+    You shoudl be strictly in your classification and ensure that the text fits the category provided.
+
+    Here are somme examples :
+
+     - 'Please resuem the text' -> 'SUMMARY'
+     - 'Explain me the purspose of the document?' -> 'DISCUSSION'
+     - 'What is the main idea of the text?' -> 'SUMMARY'
+     - 'Explain the images of the document' -> 'IMAGE_EXTRACTION'
+
     Answer: 
 
 
@@ -72,12 +82,15 @@ classify_template = PromptTemplate.from_template(
 rewrite_template = PromptTemplate.from_template(
     """
 
-    Provide a better search query for the given query.
-    Ensure that your response is clear and concise and consiste only of the query, nothing more.
-    If you don't have any suggestions, you can leave the answer and retun the original query itself.
-    
-    Query: {query} 
+    Rewrite the following query to improve its clarity and specificity. 
+    The goal is to refine the query so it yields more accurate and relevant search results. 
+    Consider the context and aim for precision without altering the original intent. 
+    If multiple refined queries can be derived, list them using bullet points. 
+    If you don't have any room for improvement, simply return the original query.
 
-    Answer:
+    Original Query: {query}
+
+    Refined Query:
+
 
     """)

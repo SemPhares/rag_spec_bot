@@ -1,13 +1,11 @@
 from utils.log import logger
+from model_api import ask_llm
 from utils.usefull import timer
-from model_api.llm_typing import llm_input
-from config.model_config import PromptConfig, ModelConfig
+from config.model_config import PromptConfig
+from config.global_config import GlobalConfig
 from .prompt import (build_classification_prompt,
                      build_rewrite_prompt)
 from .prompt_typing import classification_prompt_input
-
-# from model_api.gemini_model import clasify_with_gemini, ask_gemini
-from model_api.ollama_model import clasify_with_ollama
 
 
 def classify_user_query(query: str) -> str:
@@ -16,14 +14,11 @@ def classify_user_query(query: str) -> str:
 
     classification_prompt = build_classification_prompt(
         classification_prompt_input(query=query,
-                                    categories=PromptConfig.PROMPT_CATEGORIES)
-                                    )
-
-    # output = clasify_with_gemini(llm_input(llm_name=ModelConfig.GEMINI_MODEL_NAME,
-    #                                          input=classification_prompt))
+                                    categories=PromptConfig.PROMPT_CATEGORIES))
     
-    output = clasify_with_ollama(llm_input(llm_name=ModelConfig.MISTRAL_7B_MODEL_NAME,
-                                  input=classification_prompt))
+    output = ask_llm(GlobalConfig.MAIN_CLASSIFICATION_MODEL, 
+                     classification_prompt,
+                     conservative_mode = True)
 
     return output.response
 
@@ -55,15 +50,15 @@ def rewrite_query(query: str) -> str:
     """
     if PromptConfig.REWRITE_QUERY:
         rewrite_prompt = build_rewrite_prompt(query=query)
-        # outout = ask_gemini(llm_input(llm_name=ModelConfig.GEMINI_MODEL_NAME,
-        #                             input=rewrite_prompt))
         
         # use classify_with_ollama instead of ask_gemini to rewrite the query using CONSERVATIVE_TEMPERATURE
-        outout = clasify_with_ollama(llm_input(llm_name=ModelConfig.MISTRAL_7B_MODEL_NAME,
-                                      input=rewrite_prompt))
-        logger.info(f"Query rewritten to: {outout.response}")
+        output = ask_llm(GlobalConfig.MAIN_REWRITING_MODEL,
+                         rewrite_prompt,
+                         conservative_mode = True)
         
-        return outout.response
+        logger.info(f"Query rewritten to: {output.response}")
+        
+        return output.response
     
     else:
         logger.info("Query rewriting is disabled")

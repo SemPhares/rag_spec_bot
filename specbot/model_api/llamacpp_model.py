@@ -1,3 +1,4 @@
+from time import time
 from llama_cpp import Llama
 from utils.log import logger
 from config.global_config import GlobalConfig
@@ -20,6 +21,7 @@ def llamacpp_from_pretrained(repo_id:str,
     """
     """
     try:
+
         model = Llama.from_pretrained(
             repo_id= repo_id,
             filename=filename,
@@ -34,6 +36,16 @@ def llamacpp_from_pretrained(repo_id:str,
     return model
 
 
+def llamacpp_embedder(llm_path:str) -> Llama:
+    """
+    """
+    kwargs = llama_cpp_config.copy()
+    kwargs.update({"embedding": True})
+    model = Llama(model_path= llm_path,
+                  **llama_cpp_config)    
+    return model
+
+
 def llamacpp_for_caption(query:llama_cpp_image_input) -> llm_output:
     """
     """
@@ -41,6 +53,8 @@ def llamacpp_for_caption(query:llama_cpp_image_input) -> llm_output:
     model = llamacpp_from_pretrained(query.repo_id,
                                      query.filename)
     image_bs4 = encode_image(query.image_path)
+
+    start = time()
     response = model.create_chat_completion(
         messages = [
             {
@@ -51,10 +65,15 @@ def llamacpp_for_caption(query:llama_cpp_image_input) -> llm_output:
                 ]
             }
         ],
-        temperature=0.2,
+        temperature=GlobalConfig.TEMPERATURE
     )
-    caption:str = response["choices"][0]["message"]['content'] # type: ignore
-    output = llm_output(response=caption, llm_name=query.llm_name)
+    end = time()
+
+    caption = response["choices"][0]["message"]['content']
+
+    output = llm_output(response=caption, 
+                        llm_name=query.llm_name,
+                        generation_time= end - start)
     return output
 
 
@@ -62,12 +81,14 @@ def ask_llmcpp(query:llama_cpp_local_input) -> llm_output:
     
     llama_cpp = Llama(model_path= query.llm_path,
                       **llama_cpp_config)
-    
-    # llama_cpp = llamacpp_from_pretrained(query.repo_id,
-    #                                      query.filename)
 
+    start = time()
     output = llama_cpp.create_completion(query.input) 
-    output = output["choices"][0]["text"] # type: ignore
-    output = llm_output(response=output, llm_name=query.llm_name)
+    end = time()
+    
+    output = output["choices"][0]["text"]
+    output = llm_output(response=output,
+                        llm_name=query.llm_name,
+                        generation_time= end - start)
     return output
 

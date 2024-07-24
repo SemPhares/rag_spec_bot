@@ -5,7 +5,7 @@ from utils.usefull import spinner, timer
 from config.model_config import ApiConfig
 from config.global_config import GlobalConfig
 from langchain_core.documents import Document
-from .doc_transformer import others_transformer
+from .doc_transformer import others_transformer, custom_transformer
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain.retrievers import ContextualCompressionRetriever
@@ -15,6 +15,8 @@ from langchain_community.document_compressors.jina_rerank import JinaRerank
 
 # Get the embedder
 embedder = others_transformer.ollama_embeder
+# embedder = custom_transformer.gemini_embeder()
+
 
 
 def filter_and_split(documents: list[Document]) -> list[Document]:
@@ -37,6 +39,8 @@ def doc_ids(documents: list[Document]) -> str:
     _id = "_".join(list(unique_source))
 
     docs_id = f"{len(documents)}-{_id}.db"
+
+    logger.info(f"Documents ID created: {docs_id}")
     return docs_id
 
 
@@ -46,6 +50,8 @@ def get_vector_store(documents: list[Document]) -> Chroma:
     documents = filter_and_split(documents)
     # Create a Chroma vector store and save embeddings
     store_id = Path("specbot/store/vectorstore/", doc_ids(documents))
+    logger.info(f"Vector store ID: {store_id}")
+    
     if not store_id.exists():
         store_id.mkdir(parents=True)
         # store_id.touch()
@@ -105,6 +111,7 @@ def retrieve_docs(query:str,
     
     """
     query_category = extract_category(query)
+    logger.info(f"Extracted category: {query_category}")
 
     if query_category == "SUMMARY":
         return documents

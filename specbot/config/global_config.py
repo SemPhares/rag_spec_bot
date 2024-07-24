@@ -24,6 +24,7 @@ class GlobalConfig():
 
     MAIN_ASK_FRAMEWORK :str = os.getenv("MAIN_ASK_FRAMEWORK") or ""
     MAIN_CLASSIFICATION_MODEL :str = os.getenv("MAIN_CLASSIFICATION_MODEL") or ""
+    MAIN_REWRITING_MODEL :str = os.getenv("MAIN_REWRITING_MODEL") or ""
 
     EVALUATE_RAG :bool = bool(int(str(os.getenv("EVALUATE_RAG")))) 
 

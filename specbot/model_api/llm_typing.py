@@ -8,6 +8,7 @@ class llm_input(BaseModel):
 class llm_output(BaseModel):
    llm_name : str = Field(title="modelname", description="The name of the model used to generate the response")
    response: str
+   generation_time: float = Field(title="generation_time", description="The time taken to generate the response")
 
 class llama_cpp_local_input(llm_input):
    llm_path: str = Field(title="model_path", description="The path to the model to use for the response")

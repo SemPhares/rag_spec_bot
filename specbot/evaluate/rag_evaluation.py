@@ -92,6 +92,7 @@ class Evaluation:
         for result in test_results:
             for i, metric_meta in enumerate(result['metrics_metadata']):
                 result.update({'filename': self.test_input.file_name})
+                result.update({'generation_time': self.test_input.generation_time})
                 for key, value in vars(metric_meta).items():
                     result.update({f'{key}_{i}': value})
             del result['metrics_metadata']

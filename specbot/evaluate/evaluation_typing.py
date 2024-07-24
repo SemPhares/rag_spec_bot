@@ -6,17 +6,11 @@ from config.global_config import GlobalConfig
 
 class evaluation_input(BaseModel):
 
-   """
-   The input is the user input, actual_output is the final generation of your RAG pipeline, 
-   expected_output is what you expect the ideal actual_output to be, 
-   and the retrieval_context is the retrieved text chunks during the retrieval step. 
-   The expected_output is needed because it acts as the ground truth for what information the retrieval_context should contain.
-   """
-
-   input: str = Field(title="question", description="The question sent to the LLM engine")
+   user_input: str = Field(title="question", description="The question sent to the LLM engine")
    actual_output: str
    retrieval_context: list[Document] = None
    file_name: list = None
+   generation_time: float = None
    
 
 class base_evaluation_input(BaseModel):

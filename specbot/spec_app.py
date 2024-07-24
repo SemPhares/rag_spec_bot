@@ -26,6 +26,7 @@ if reload:
 
 # Create a file uploader in the sidebar
 uploaded_files = st.sidebar.file_uploader("Upload File", accept_multiple_files=True)
+test_input = None
 
 
 # Handle file upload
@@ -51,6 +52,7 @@ if len(uploaded_files) > 0:
                                              tempfile_path_list=tempfile_path_list).load()
 
     logger.info(f"Number of documents: {len(st.session_state['docs'])}")
+    logger.info(f"First documents: {st.session_state['docs'][0]}")
 
     # Initialize chat history
     if 'history' not in st.session_state:
@@ -61,6 +63,7 @@ if len(uploaded_files) > 0:
         # file name to display comma separated
         file_name_to_display = ", ".join(filename_list)
         st.session_state['generated'] = ["Hello ! Ask me about " + file_name_to_display + " 🤗"]
+        
 
     if 'past' not in st.session_state:
         st.session_state['past'] = ["hi ! 👋"]
@@ -78,6 +81,7 @@ if len(uploaded_files) > 0:
         if submit_button and user_input:
             logger.info(f"User question: {user_input}")
             retrieved_docs = retrieve_docs(user_input, st.session_state['docs'])
+            logger.info(f"Retrieved documents: {retrieved_docs}")
             prompt = build_rag_prompt(prompt_input(query=user_input,
                                                    retrieved_chunks=retrieved_docs))
             logger.info(f"Prompt: {prompt}")
@@ -88,12 +92,12 @@ if len(uploaded_files) > 0:
 
             # Evaluation case
             test_input = evaluation_input(
-                input = user_input,
+                user_input = user_input,
                 actual_output = output.response,
                 retrieval_context = retrieved_docs,
-                file_name = filename_list)
-            
-            eval_model = evaluation_model(model_name = GlobalConfig.MAIN_ASK_FRAMEWORK)
+                file_name = filename_list,
+                generation_time = output.generation_time)
+
 
     # Display chat history
     if st.session_state['generated']:
@@ -103,10 +107,12 @@ if len(uploaded_files) > 0:
                 sc.message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="personas")
                 sc.message(st.session_state["generated"][i], key=str(i), avatar_style="micah")
         
-    if GlobalConfig.EVALUATE_RAG :
+        if GlobalConfig.EVALUATE_RAG  and test_input is not None:
 
-        eval_llm = Evaluation(test_input = test_input,
-                              evaluation_model = eval_model)
-        eval_llm.evaluation(evaluation_mode = "both",
-                            display_mode = "dataframe")
-        logger.info("Evaluation done")
+            eval_model = evaluation_model(model_name = GlobalConfig.MAIN_ASK_FRAMEWORK)
+
+            eval_llm = Evaluation(test_input = test_input,
+                                  evaluation_model = eval_model)
+            eval_llm.evaluation(evaluation_mode = "both",
+                                display_mode = "dataframe")
+            logger.info("Evaluation done")
