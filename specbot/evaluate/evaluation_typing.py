@@ -6,8 +6,8 @@ from config.global_config import GlobalConfig
 
 class evaluation_input(BaseModel):
 
-   user_input: str = Field(title="question", description="The question sent to the LLM engine")
-   actual_output: str
+   user_query: str = Field(title="question", description="The question sent to the LLM engine")
+   actual_output: str = Field(title="response", description="The response from the LLM engine")
    retrieval_context: list[Document] = None
    file_name: list = None
    generation_time: float = None

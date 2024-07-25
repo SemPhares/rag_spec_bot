@@ -8,10 +8,10 @@ specbot/model_api/models_w
 test_notebook/
 .DS_Store
 log/*
+*.json
 specbot/store/extracted_images/*
 specbot/store/loaded_files/*
 specbot/store/vectorstore/*
 specbot/config/secret.py
-specbot/evaluate/*.ipynb
-.deepeval-cache.json
 specbot/evaluate/results/*
+specbot/evaluate/evaluation.ipynb

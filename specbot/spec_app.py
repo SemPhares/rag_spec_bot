@@ -92,7 +92,7 @@ if len(uploaded_files) > 0:
 
             # Evaluation case
             test_input = evaluation_input(
-                user_input = user_input,
+                user_query = user_input,
                 actual_output = output.response,
                 retrieval_context = retrieved_docs,
                 file_name = filename_list,

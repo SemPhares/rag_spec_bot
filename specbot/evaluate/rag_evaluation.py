@@ -30,7 +30,7 @@ class Evaluation:
     def _test_case(self, 
                    test_input:evaluation_input) -> LLMTestCase:
         
-        test_case = LLMTestCase(input=test_input.input,
+        test_case = LLMTestCase(input=test_input.user_query,
                     actual_output=test_input.actual_output,
                     retrieval_context=[doc.page_content for doc in test_input.retrieval_context])
         
