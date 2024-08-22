@@ -3,8 +3,6 @@ from config.model_config import ModelConfig
 from model_api.llamacpp_model import llamacpp_embedder
 
 import torch
-import numpy as np
-from typing import List
 from sentence_transformers import SentenceTransformer
 
 from google import generativeai as genai
